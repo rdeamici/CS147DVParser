@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class AssemblyParser
 {	
 	/**
-	 * Begins a console session where the user can input valid CS147DV commands and get the hex value in return
+	 * Begins a console session where the user can input valid CS147DV commands and get the hex value in return.
 	 * Console can be quit by typing quit or null
 	 */
 	public static void startConsoleParser()
@@ -142,8 +142,8 @@ public class AssemblyParser
 			case "sub" : return 0x22;
 			case "mul" : return 0x2c;
 			case "and" : return 0x24;
-			case "or" : return 0x27;
-			case "nor" : return 0x26;
+			case "or" : return 0x25;
+			case "nor" : return 0x27;
 			case "slt" : return 0x2a;
 			case "sll" : return 0x01;
 			case "srl" : return 0x02;
