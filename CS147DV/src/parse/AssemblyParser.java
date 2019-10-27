@@ -16,6 +16,7 @@ public class AssemblyParser
 	public static void startConsoleParser()
 	{
 		System.out.println("Starting console");
+		System.out.println("To see an example, enter help");
 		Scanner input = new Scanner(System.in);
 		String instruction = "";
 		
@@ -26,7 +27,13 @@ public class AssemblyParser
 			
 			try 
 			{
-				if(!instruction.equals("quit") && !instruction.equals("null"))
+				if(instruction.toLowerCase().trim().equals("help"))
+				{
+					System.out.println("\nExample syntax for addi register 1, register 2, 0x10 (note that this value must be converted to decimal):");
+					System.out.println("-> addi r1, r2, 16");
+					System.out.println(parse("addi r1, r2, 16") + "\n");
+				}
+				else if(!instruction.equals("quit") && !instruction.equals("null") )
 					System.out.println(parse(instruction));
 				
 			}
@@ -142,7 +149,7 @@ public class AssemblyParser
 			case "sub" : return 0x22;
 			case "mul" : return 0x2c;
 			case "and" : return 0x24;
-			case "or" : return 0x25;
+			case "or"  : return 0x25;
 			case "nor" : return 0x27;
 			case "slt" : return 0x2a;
 			case "sll" : return 0x01;
