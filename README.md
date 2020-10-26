@@ -6,5 +6,6 @@ The program was originally written by Jordan Conragan in the fall semester of 20
 Pull requests are encouraged. 
 
 # How to use
-The Java implemention of the program and instructions can be found in the CS147DVJavaParser folder
+The Java implemention of the program and instructions can be found in the CS147DVJavaParser folder.
+
 The Python implementation and instructions can be found in CS147DVPyParser
