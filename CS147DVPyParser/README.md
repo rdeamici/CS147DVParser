@@ -6,8 +6,8 @@ This program was inspired greatly by Jordan Conragan and written humbly by Rick 
 there are two ways to interact with this program.
 1. by importing it into your own script.
     ```
-    >>> import AssemblyParser
-    >>> hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
+    import AssemblyParser
+    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
 
     I-Type
     <mnemonic> <rt> <rs> <imm> [base]
@@ -21,7 +21,8 @@ there are two ways to interact with this program.
 
     binary_string
     0010 0000 0110 0010 0000 0000 0000 0101
-    >>> print(hex_result)
+    
+    print(hex_result)
     20620005
     ```
     If you don't want to see all the meta-information, send it to 'devnull'
