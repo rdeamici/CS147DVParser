@@ -219,8 +219,10 @@ def usage():
     error += '\n{}'.format(opCodes.keys()) 
     print(error)
     
-def parse_instruction(instruction, vprint):
+def parse_instruction(instruction, vprint=sys.stderr):
     assert instruction, "No instruction provided"
+    if vprint=='devnull':
+        vprint = open(os.devnull,'w')
     # define the print function. If user wants to redirect output
     # send print statements to stderr
     
