@@ -366,17 +366,15 @@ if __name__ == "__main__":
     vprint = sys.stdout if verbose else devnull
 
     for i in instructions:
-        if interactive:
-            try:
-                hex_result = parse_instruction(i,vprint)
-            except Exception as e:
-                sys.stderr.write(str(e))
-                sys.stderr.write('\n')
-            else:
-                outfile.write(hex_result+'\n')
-        else:
+        try:
             hex_result = parse_instruction(i,vprint)
+        except Exception as e:
+            sys.stderr.write(str(e))
+            sys.stderr.write('\n')
+        else:
+            vprint.write('\n'+'hexadecimal_string result: \n')
             outfile.write(hex_result+'\n')
+    
     first_time=True
     while interactive:
         i = interactive_mode(vprint, first_time)
@@ -386,6 +384,7 @@ if __name__ == "__main__":
             sys.stderr.write(str(e))
             sys.stderr.write('\ntry again\n\n')
         else:
+            vprint.write('\nhexadecimal_string result: \n')
             outfile.write(hex_result+'\n\n')
         first_time = False
             
