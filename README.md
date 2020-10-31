@@ -1,6 +1,6 @@
 # CS147DVPyParser
 
-This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 to quickly convert CS147DV instructions to hexadecimal. It may not work as intented if CS147DV has been changed/updated since it was last updated in December of 2019. Pull requests are encouraged.
+This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 for Kaushik Patra's `CS147: computer architecture` course. The program will quickly convert CS147DV instructions written in human-readable format to hexadecimal. It may not work as intented if CS147DV has been changed/updated since fall 2020. Pull requests are encouraged. Good luck on your project :)
 
 ## Requirements
 The program is known to work with Python 3.7+. It should also work with Python2.7, but is untested.
