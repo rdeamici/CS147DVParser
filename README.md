@@ -7,6 +7,8 @@ The program is known to work with Python 3.7+. It should also work with Python2.
 
 The script does not have any external dependencies. It does rely on the `sys`, `os`, `re`, `argparse` packages that come built-in with Python.
 
+---
+
 ## Quick set-up
 There are two main ways to interact with this script.
             
@@ -14,9 +16,7 @@ There are two main ways to interact with this script.
     
     * interactive mode:
 
-      ```bash
-      $ python AssemblyParser.py
-      ```
+      `$ python AssemblyParser.py`
       
       <img src="/CS147DVParser/interactiveParser.gif" width="450" height="350"/>
     
@@ -24,17 +24,13 @@ There are two main ways to interact with this script.
 
     * passing in instructions as arguments:
 
-      ```bash
-      $ python AssemblyParser.py "add r2 r2 r3"
-      ```
+      `$ python AssemblyParser.py "add r2 r2 r3"`
 
       <img src="/CS147DVParser/commandlineParser.gif" width="450" height="350"/>
 
       Pass in as many instructions as you want.
 
-      ```bash
-      $ python AssemblyParser.py "add r2 r2 r3" "addi r2 r2 3"
-      ```
+      `$ python AssemblyParser.py "add r2 r2 r3" "addi r2 r2 3"`
     
       <img src="/CS147DVParser/2argCommandlineParser.gif" width="450" height="666"/>
     
@@ -42,30 +38,33 @@ There are two main ways to interact with this script.
       File must contain one instructions per line. 
       The script will remove any comments starting with  `//` , `#` , `/*`
 
-      ```bash
-      $ python AssemblyParser.py -f instructions.txt
-      ```
+      `$ python AssemblyParser.py -f instructions.txt`
     
       <img src="/CS147DVParser/ParseFromFile.gif" width="450" height="666"/>
-    
-    
+
+***    
+ 
 2. You can also import the script as a module into your own script.
 
    The main point of entry is:
-        ```python
-        parse_instructions(instruction -> str, vprint -> str) -> str
-        ```
+
+    `parse_instructions(instruction -> str, vprint -> str) -> str`
+
         
     arguments:
+    
     * instruction (required): a single CS147DV instruction as defined in the Instruction Format section below.
+    
     * vprint (optional): verbose printer. This variable Defines the file-like object to send print statements to. Default is `sys.stderr`. If you want a less verbose output you can set `vprint = devnull` to send print statements to devnull, essentially supressing the statements.
 
-    a simple example that parses an instruction and prints the results to the screen
+    a simple example that parses an instruction and prints the results to the screen:
+    
     ```python
     import AssemblyParser
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
     print(hex_result)
     ```
+
     As stated above, the script's default setting is verbose. The call to `parse_instructions()` will send the following output to `stderr` by default
     
     ```
@@ -90,7 +89,7 @@ There are two main ways to interact with this script.
     {: .panel-heading}
     <div class="panel-body">
 
-    Suppressing stderr output makes it much more difficult to determine if your instruction is encoded in hexadecimal correctly! Thus I recommend against it
+    Suppressing stderr output makes it much more difficult to determine if your instruction is encoded in hexadecimal correctly! Thus it is not recommended.
 
     </div>
     </div>
@@ -100,9 +99,10 @@ There are two main ways to interact with this script.
     print(hex_result)
     ```
     The above script will only print out the result to stdout:
-        
-        20620005
+    
+    `0620005`
 
+---
 
 ## CS147DV Instruction Format
 
@@ -153,6 +153,8 @@ Instructions must be of the form:
 
     TBD
 
+---
+
 ## Declaring your number data type
 This script can handle binary, decimal, and hexadecimal values for the `<shamt>`, `<immediate>` and `<address>` values.  If the data type is not specified, the script will attempt to coerce the value into the appropriate type in the following order:  
     1. binary
@@ -175,4 +177,5 @@ The single character `h`, while not a valid binary, decimal, or hexadecimal stri
 Here is an example. Notice how the bit value of `immediate` changes with the data type:
 <img src="/CS147DVParser/baseTypesExample.gif" width="450" height="666"/>
     
-
+---
+source code can be found [here](https://github.com/rdeamici/CS147DVParser)
