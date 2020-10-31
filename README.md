@@ -1,11 +1,11 @@
 # CS147DVPyParser
 
-This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 for Kaushik Patra's `CS147: computer architecture` course. The program will quickly convert CS147DV instructions written in human-readable format to hexadecimal. It may not work as intented if CS147DV has been changed/updated since fall 2020. Pull requests are encouraged. Good luck on your project :)
+This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 for Kaushik Patra's `CS147: computer architecture` course. The program will quickly convert CS147DV instructions written in human-readable format to hexadecimal. It may not work as intended if CS147DV has been changed/updated since fall 2020. Pull requests are encouraged. Good luck on your project :)
 
 ## Requirements
 The program is known to work with Python 3.7+. It should also work with Python2.7, but is untested.
 
-Dependencies include the built-in packages `sys`, `os`, and `argparse`
+The script does not have any external dependencies. It does rely on the `sys`, `os`, `re`, `argparse` packages that come built-in with Python.
 
 ## Quick set-up
 There are two main ways to interact with this script.
@@ -13,23 +13,38 @@ There are two main ways to interact with this script.
 1. as a command line utility:
     
     * interactive mode:
+
+      ```bash
+      $ python AssemblyParser.py
+      ```
       
       <img src="/CS147DVParser/interactiveParser.gif" width="400" height="350"/>
     
       press `ctrl-c` at any time to exit.
 
     * passing in instructions as arguments:
-      
+
+      ```bash
+      $ python AssemblyParser.py "add r2 r2 r3"
+      ```
+
       <img src="/CS147DVParser/commandlineParser.gif" width="400" height="350"/>
 
-
       Pass in as many instructions as you want.
+
+      ```bash
+      $ python AssemblyParser.py "add r2 r2 r3" "addi r2 r2 3"
+      ```
     
       <img src="/CS147DVParser/2argCommandlineParser.gif" width="400" height="666"/>
     
     * Pass in instructions from a file. 
       File must contain one instructions per line. 
       The script will remove any comments starting with  `//` , `#` , `/*`
+
+      ```bash
+      $ python AssemblyParser.py -f instructions.txt
+      ```
     
       <img src="/CS147DVParser/ParsefromFile.gif" width="400" height="666"/>
     
