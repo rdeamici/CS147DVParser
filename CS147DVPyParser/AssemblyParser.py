@@ -3,6 +3,8 @@
 import sys
 import os
 import argparse
+import re
+
 if hasattr(__builtins__, 'raw_input'):
       input=raw_input
 '''
@@ -269,9 +271,12 @@ def parse_instruction(instruction, vprint=sys.stderr):
         vprint = open(os.devnull,'w')
 
     # remove trailing comments if applicable
-    comment_index = instruction.find('//')
-    if comment_index != -1:
-        instruction = instruction[:comment_index]
+    comment_starters = ['//','#','/*']
+    for comment_starter in comment_starters:
+        comment_index = instruction.find(comment_starter)
+        if comment_index != -1:
+            instruction = instruction[:comment_index]
+    print(instruction)
     opcode = ''
     rd = ''
     rs = ''
