@@ -247,8 +247,8 @@ def parse_instruction(instruction, vprint=sys.stderr):
         vprint.write(' _____________________________________\n')
         vprint.write('|opcode| rs  | rt  | rd  |shamt| funct|\n')
         vprint.write('|______|_____|_____|_____|_____|______|\n\n')
-        if base: shamt = x_to_binary(shamt,base,6)
-        else: shamt = convert_to_bin(shamt,6)
+        if base: shamt = x_to_binary(shamt,base,5)
+        else: shamt = convert_to_bin(shamt,5)
 
     elif mnemonic in itype_mnemonics:
         rt, rs, immediate, base = parse_itype(rest)
@@ -292,6 +292,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
     vprint.write('\n')
     vprint.write('\t'.join(to_print)+'\n\n')
     bin_inst = opcode+address+rs+rt+immediate+rd+shamt+funct
+    assert len(bin_inst) <= 32, "binary string too long!\n" +bin_inst
     vprint.write('binary_string\n')
     for i in range(len(bin_inst)):
         if (i == 0) or (i%4 > 0):
@@ -299,7 +300,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
         else:
             vprint.write(' '+bin_inst[i])
     vprint.write('\n')
-    hex_inst = convert_bin_to_hex(bin_inst,8) 
+    hex_inst = convert_bin_to_hex(bin_inst,8)
     return hex_inst
 
 
@@ -331,40 +332,48 @@ if __name__ == "__main__":
     epilog += '        \t- result in the form of a 32-bit binary string\n'
     epilog += '        will be output to stderr\n\n'
     epilog += '        the resulting hexadecimal string will be output to stdout.\n'
-    parser = argparse.ArgumentParser(description="parse CS147DV instructions into hexadecimal",
+    parser = argparse.ArgumentParser(description="Program to parse CS147DV instructions into hexadecimal",
                             prog = 'CS147DVInstructionParser',
                             formatter_class=argparse.RawDescriptionHelpFormatter,
                             epilog = epilog)
 
     parser.add_argument('instructions',nargs='*', default=[], help = 'CS147DV instructions wrapped in "quotes"')
-    parser.add_argument('-f','--file', nargs='?',type=argparse.FileType('r'), help='file of CS147DV instructions.')
-    parser.add_argument('-o','--outfile', nargs='?',type=argparse.FileType('w'),
-                        default=sys.stdout, help='File to save results to. Will write over whatever is already in this file')
+    parser.add_argument('-f','--file', nargs='?',type=argparse.FileType('r'), help='file of CS147DV instructions, one per line')
+    parser.add_argument_group()
+    parser.add_argument('-o','--outfile', nargs='?',
+                        default=sys.stdout, help='File to save results to. Default setting will write over whatever is already in this file, if it exists')
+    parser.add_argument('-a','--append', action='store_true',help='append results to outfile, instead of writing over the outfile.')
     parser.add_argument('-i','--interactive',action='store_true', help='evoke interactive mode.')
     parser.add_argument('-q','--quiet', action='store_true', help='suppress meta-info about each instruction')
     args = parser.parse_args()
-    # try:
-    #     opts, args = getopt.getopt(sys.argv[1:], 'hif', ["help",'instructions','file'])
-    # except getopt.GetoptError as err:
-    #     # print help information and exit:
-    #     print(str(err))  # will print something like "option -a not recognized"
-    #     usage()
-    #     sys.exit(2)
+
+    # create a list of instructions to parse that 
+    # are passed in from command line and/or file
     instructions = args.instructions
     if args.file:
         with args.file as f:
             instructions += [i.strip() for i in f]
     
     outfile = args.outfile
+    if args.append:
+        assert outfile != sys.stdout, "Must set outfile to a real file if you want to append values to it."
+    
+    if outfile != sys.stdout: 
+        mode = 'a' if args.append else 'w'
+        outfile = open(args.outfile, mode)
+    
     interactive = args.interactive
     # if they don't provide any input, automatically set interactive to True
     if not interactive:
         interactive = not instructions
 
-    devnull = open(os.devnull,'w')
-    verbose = not args.quiet
-    vprint = sys.stdout if verbose else devnull
-
+    # set file to print meta information to stdout
+    #  or to devnull for 'quiet' mode
+    if args.quiet:
+        vprint = open(os.devnull,'w')
+    else:
+        vprint = sys.stdout
+    
     for i in instructions:
         try:
             hex_result = parse_instruction(i,vprint)
@@ -377,14 +386,20 @@ if __name__ == "__main__":
     
     first_time=True
     while interactive:
-        i = interactive_mode(vprint, first_time)
         try:
+            i = interactive_mode(vprint, first_time)
             hex_result = parse_instruction(i,vprint)
         except Exception as e:
             sys.stderr.write(str(e))
             sys.stderr.write('\ntry again\n\n')
+        except KeyboardInterrupt:
+            # these could both possibly be sys.stdout, however its
+            # safe to close sys.stdout here since immediately exiting
+            outfile.close()
+            vprint.close()
+            sys.exit(0)
         else:
-            vprint.write('\nhexadecimal_string result: \n')
+            vprint.write('\nhexadecimal_string result:\n')
             outfile.write(hex_result+'\n\n')
         first_time = False
             
