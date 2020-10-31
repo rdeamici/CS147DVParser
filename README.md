@@ -9,8 +9,31 @@ Dependencies include the built-in packages `sys`, `os`, and `argparse`
 
 ## Quick set-up
 The main function that does all the work is `AssemblyParser.parse_instructions()`. There are two main ways to interact with this method.
+            
+1. as a command line script:
+    
+    to run it in interactive mode:
+    
+    ![](interactiveParser.gif)
+    <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
+    
+    press `ctrl-c` at any time to exit.
+
+    You can also parse a single instruction and exit immediately, without entering interactive mode:
+    
+    ![](1argCommandLineParser.gif)
         
-1. by importing it into your own script.
+    You are not limited to passing only a single instruction. Pass in as many as you want!
+    
+    ![](2argCommandLineParser.gif)
+    
+    You can pass in a whole file of instructions, one instructions per line in the file. The script will remove any comments starting with a `// ` or `# `
+    
+    ![](instFromFileParser.gif)
+    
+    1[](commentsRemoved.gif)
+    
+2. You can also import the module into your own script.
     ```python
     import AssemblyParser
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
@@ -43,77 +66,6 @@ The main function that does all the work is `AssemblyParser.parse_instructions()
     The above script will only print out the result to stdout:
         
         20620005
-    
-
-2. The script also works as a command line utility:
-    
-    to run it in basic interactive mode:
-    
-    ![](CS147DVParserInteractive.gif)
-    
-    ```python
-    $ python AssemblyParser.py
-    ```
-    With no arguments, the script will enter interactive mode:
-    ```
-    WELCOME TO CS147DV INTERACTIVE INSTRUCTION PARSER!
-    ENTER IN YOUR INSTRUCTIONS ONE AT A TIME
-    THE RESULT WILL BE PRINTED TO THE SCREEN
-    INPUT SHOULD BE OF THE TYPE:
-      R-Type:  <mnemonic> <rd>,<rs>,<rt|shamt>
-      I-Type:  <mnemonic> <rt>,<rs>, <imm>
-      J-Type:  <mnemonic> <address>
-    OUTPUT WILL BE A 32 BIT HEXADECIMAL NUMBER
-    PRESS ctrl-c TO EXIT AT ANY TIME
-
-    enter your intruction: _
-    ```
-    press `ctrl-c` at any time to exit.
-
-    You can also parse a single instruction and exit immediately, without entering interactive mode.
-    
-    To do this, pass in the instruction to the script as a command line argument:
-    ```
-    $ python AssemblyParser.py "addi r2 r3 5"
-    
-    I-Type
-    <mnemonic> <rt> <rs> <imm> [base]
-    input: addi r2 r3 5
-     ___________________________________
-    |opcode| rs  | rt  |   immediate    |
-    |______|_____|_____|________________|
-
-    opcode  rs      rt      imm
-    001000  00011   00010   0000000000000101
-
-    binary_string
-    0010 0000 0110 0010 0000 0000 0000 0101
-
-    hexadecimal_string result:
-    20620005
-    
-    $ _
-    ```
-
-    suppress meta-information with the `-q` flag. This can be used in any mode.
-
-    interactive :
-    ```
-    $ python AssemblyParser.py -q
-
-    enter in your instruction: addi r2 r3 5
-    20620005
-
-
-    enter in your instruction: _
-    ```
-    non-interactive :
-    ```
-    $ python AssemblyParser.py "addi r2 r3 5" -q
-    20620005
-
-    $ _
-    ```
 
 
 ## CS147DV Instruction Format
@@ -157,4 +109,11 @@ Instructions must be of the form:
           hexadecimal_string result:
           00c02101
           ```
+## Declaring your number data type
+This script can handle binary, decimal, and hexadecimal values for the `<shamt>`, `<immediate>` and `<address>` values.  If the data type is not specified, the script will attempt to coerce the value into the appropriate type in the following order.  binary >> decimal >> hexadecimal.
+
+This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All decimals strings are also valid hexadecimal strings.  Thus it is best to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal]`. Note the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings, which could lead to problems. The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for continuities sake.
+
+Here is an example:
+![](baseTypeExample.gif)
 
