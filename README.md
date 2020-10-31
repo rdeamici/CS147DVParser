@@ -34,17 +34,24 @@ There are two main ways to interact with this script.
     
       <img src="/CS147DVParser/2argCommandlineParser.gif" width="450" height="666"/>
     
-    * Pass in instructions from a file. 
-      File must contain one instructions per line. 
-      The script will remove any comments starting with  `//` , `#` , `/*`
+    * Pass in instructions from a file. The file must contain a single CS147DV instructions per line. The script will remove any comments starting with  `//` , `#` , `/*`
 
       `$ python AssemblyParser.py -f instructions.txt`
     
       <img src="/CS147DVParser/ParseFromFile.gif" width="450" height="666"/>
 
+### other options
+*  `-h, --help` : print help information and exit
+*  `-0, --outfile` : File to save the hexadecimal results to. 
+*  `-a, --append` : append the results to outfile, instead of overwriting.
+*  `-i, --interactive` : invoke interactive mode. Especially useful if you want to pass in some instructions from the commandline or a file, and want to continue to add more instructions dynamically
+
+*  `-q, --quite` : suppress output of meta information. Not recommended! Difficult to know if the instruction you input is really what you thought it was.
+
+
 ***    
  
-2. You can also import the script as a module into your own script.
+2. You can also `import AssemblyParser` as a module into your own script.
 
    The main point of entry is:
 
