@@ -48,6 +48,9 @@ The main function that does all the work is `AssemblyParser.parse_instructions()
 2. The script also works as a command line utility:
     
     to run it in basic interactive mode:
+    
+    ![](CS147DVParserInteractive.gif)
+    
     ```python
     $ python AssemblyParser.py
     ```
