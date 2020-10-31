@@ -8,31 +8,33 @@ The program is known to work with Python 3.7+. It should also work with Python2.
 Dependencies include the built-in packages `sys`, `os`, and `argparse`
 
 ## Quick set-up
-The main function that does all the work is `AssemblyParser.parse_instructions()`. There are two main ways to interact with this method.
+There are two main ways to interact with this script.
             
-1. as a command line script:
+1. as a command line utility:
     
-    to run it in interactive mode:
+    * interactive mode:
+      
+      <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
     
-    <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
-    
-    press `ctrl-c` at any time to exit.
+      press `ctrl-c` at any time to exit.
 
-    You can also parse a single instruction and exit immediately, without entering interactive mode:
-    
-    <img src="/CS147DVParser/commandlineParser.gif" width="600" height="500"/>
+    * passing in instructions as arguments:
+      
+      <img src="/CS147DVParser/commandlineParser.gif" width="600" height="500"/>
 
 
-    You are not limited to passing only a single instruction. Pass in as many as you want!
+      Pass in as many instructions as you want.
     
-    <img src="/CS147DVParser/2argCommandlineParser.gif" width="600" height="1000"/>
+      <img src="/CS147DVParser/2argCommandlineParser.gif" width="600" height="1000"/>
     
-    You can pass in a whole file of instructions, one instructions per line in the file. The script will remove any comments starting with a `// ` or `# `
+    * Pass in instructions from a file. 
+      File must contain one instructions per line. 
+      The script will remove any comments starting with  `//` , `#` , `/*`
     
-    <img src="/CS147DVParser/ParsefromFile.gif" width="600" height="1000"/>
+      <img src="/CS147DVParser/ParsefromFile.gif" width="600" height="1000"/>
     
     
-2. You can also import the module into your own script.
+2. You can also import the script as a module into your own script.
     ```python
     import AssemblyParser
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
@@ -54,9 +56,9 @@ The main function that does all the work is `AssemblyParser.parse_instructions()
     0010 0000 0110 0010 0000 0000 0000 0101
     ```
     the call to `print(hex_result)` in the above example will print:
-    ```
-    20620005
-    ```
+    
+        20620005
+    
     To suppress the meta-information entirely, redirect that output from `sys.stderr` to 'devnull'. Do this by passing in the string 'devnull' as a second argument to `parse_instructions()`
     ```python
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', 'devnull')
@@ -108,12 +110,13 @@ Instructions must be of the form:
           hexadecimal_string result:
           00c02101
           ```
+
 ## Declaring your number data type
 This script can handle binary, decimal, and hexadecimal values for the `<shamt>`, `<immediate>` and `<address>` values.  If the data type is not specified, the script will attempt to coerce the value into the appropriate type in the following order.  binary >> decimal >> hexadecimal.
 
 This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All decimals strings are also valid hexadecimal strings.  Thus it is best to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal]`. Note the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings, which could lead to problems. The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for continuities sake.
 
-Here is an example:
+Here is an example. Notice how the bit value of `immediate` changes with the data type:
 <img src="/CS147DVParser/baseTypesExmple.gif" width="600" height="1000"/>
     
 
