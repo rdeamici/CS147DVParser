@@ -15,7 +15,7 @@ The main function that does all the work is `AssemblyParser.parse_instructions()
     to run it in interactive mode:
     
     ![](interactiveParser.gif)
-    <img src="/CS147DVParser/interactiveParser.gif" width="500" height="600"/>
+    <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
     
     press `ctrl-c` at any time to exit.
 
