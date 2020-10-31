@@ -50,12 +50,24 @@ There are two main ways to interact with this script.
     
     
 2. You can also import the script as a module into your own script.
+
+   The main point of entry is:
+        ```python
+        parse_instructions(instruction -> str, vprint -> str) -> str
+        ```
+        
+    arguments:
+    * instruction (required): a single CS147DV instruction as defined in the Instruction Format section below.
+    * vprint (optional): verbose printer. This variable Defines the file-like object to send print statements to. Default is `sys.stderr`. If you want a less verbose output you can set `vprint = devnull` to send print statements to devnull, essentially supressing the statements.
+
+    a simple example that parses an instruction and prints the results to the screen
     ```python
     import AssemblyParser
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
     print(hex_result)
     ```
-    the script's default setting is verbose. The call to `parse_instructions()` will send the following output to `stderr` by default
+    As stated above, the script's default setting is verbose. The call to `parse_instructions()` will send the following output to `stderr` by default
+    
     ```
     I-Type
     <mnemonic> <rt> <rs> <imm> [base]
@@ -70,13 +82,11 @@ There are two main ways to interact with this script.
     binary_string
     0010 0000 0110 0010 0000 0000 0000 0101
     ```
-    the call to `print(hex_result)` in the above example will print:
     
-        20620005
-    
-    To suppress the meta-information entirely, redirect that output from `sys.stderr` to 'devnull'. Do this by passing in the string 'devnull' as a second argument to `parse_instructions()`
+    setting  to `vprint=devnull` will supprsee the above print statements
+
     ```python
-    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', 'devnull')
+    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint'devnull')
     print(hex_result)
     ```
     The above script will only print out the result to stdout:
@@ -125,11 +135,25 @@ Instructions must be of the form:
           hexadecimal_string result:
           00c02101
           ```
+* I-Type
+    
+    TBD
+
+* J-Type
+
+    TBD
 
 ## Declaring your number data type
-This script can handle binary, decimal, and hexadecimal values for the `<shamt>`, `<immediate>` and `<address>` values.  If the data type is not specified, the script will attempt to coerce the value into the appropriate type in the following order.  binary >> decimal >> hexadecimal.
+This script can handle binary, decimal, and hexadecimal values for the `<shamt>`, `<immediate>` and `<address>` values.  If the data type is not specified, the script will attempt to coerce the value into the appropriate type in the following order:  
+    1. binary
+    2. decimal
+    3. hexadecimal
 
-This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All decimals strings are also valid hexadecimal strings.  Thus it is best to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal]`. Note the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings, which could lead to problems. The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for continuities sake.
+This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All valid decimals strings are also valid hexadecimal strings.  Thus, it is safest to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal, hexidecimal]`. 
+
+Note: the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselved (`'dec'h` == `'3564'd`), which could lead to undesired consequences that are deifficult to discover and debug.
+
+The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for the sake of continuity.
 
 Here is an example. Notice how the bit value of `immediate` changes with the data type:
 <img src="/CS147DVParser/baseTypesExample.gif" width="450" height="666"/>
