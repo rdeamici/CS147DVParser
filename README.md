@@ -14,24 +14,23 @@ The main function that does all the work is `AssemblyParser.parse_instructions()
     
     to run it in interactive mode:
     
-    ![](interactiveParser.gif)
     <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
     
     press `ctrl-c` at any time to exit.
 
     You can also parse a single instruction and exit immediately, without entering interactive mode:
     
-    ![](1argCommandLineParser.gif)
-        
+    <img src="/CS147DVParser/commandlineParser.gif" width="600" height="500"/>
+
+
     You are not limited to passing only a single instruction. Pass in as many as you want!
     
-    ![](2argCommandLineParser.gif)
+    <img src="/CS147DVParser/2argCommandlineParser.gif" width="600" height="1000"/>
     
     You can pass in a whole file of instructions, one instructions per line in the file. The script will remove any comments starting with a `// ` or `# `
     
-    ![](instFromFileParser.gif)
+    <img src="/CS147DVParser/ParsefromFile.gif" width="600" height="1000"/>
     
-    1[](commentsRemoved.gif)
     
 2. You can also import the module into your own script.
     ```python
@@ -115,5 +114,6 @@ This script can handle binary, decimal, and hexadecimal values for the `<shamt>`
 This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All decimals strings are also valid hexadecimal strings.  Thus it is best to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal]`. Note the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings, which could lead to problems. The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for continuities sake.
 
 Here is an example:
-![](baseTypeExample.gif)
+<img src="/CS147DVParser/baseTypesExmple.gif" width="600" height="1000"/>
+    
 
