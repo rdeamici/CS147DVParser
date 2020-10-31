@@ -51,16 +51,21 @@ There are two main ways to interact with this script.
     `parse_instructions(instruction -> str, vprint -> str) -> str`
 
         
-    arguments:
+    input arguments:
     
     * instruction (required): a single CS147DV instruction as defined in the Instruction Format section below.
     
     * vprint (optional): verbose printer. This variable Defines the file-like object to send print statements to. Default is `sys.stderr`. If you want a less verbose output you can set `vprint = devnull` to send print statements to devnull, essentially supressing the statements.
 
+    output:
+
+    * a hexadecimal string representation of the instruction input
+
     a simple example that parses an instruction and prints the results to the screen:
     
     ```python
     import AssemblyParser
+    
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
     print(hex_result)
     ```
@@ -102,6 +107,27 @@ There are two main ways to interact with this script.
     
     `0620005`
 
+    to print out multiple instructions:
+
+    ```python
+    # MyAssemblyParser.py
+    import AssemblyParser
+
+    instructions = ['add r2 r2 r3','sll r2 r2 5','jal 12','push']
+    results = [AssemblyParser(i) for i in instructions]
+    
+    for r in results:
+        print(r)
+    ```
+
+    redirect output to a file:
+
+    ```bash
+    $ python MyAssemblyParser.py > results.txt
+    ```
+
+    **Note:** In the above example, the meta information about each instruction is sent to stderr, which defaults to the screen. Thus running this program will print out a bunch of stuff to the screen, but `results.txt` will only contain the hexadecimal results.
+
 ---
 
 ## CS147DV Instruction Format
@@ -120,31 +146,31 @@ Instructions must be of the form:
 
         If you choose an R-type instruction that requires a `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
 
-        ex:
-        * ```
-          enter your intruction: sll r2 r3 r4
-          shift operations require a shamt, not a register
-          try again
-          
-          
-          enter your intruction: sll r2 r3 4
-          
-          R-Type
-          <mnemonic> <rd> <rs> <rt|shamt> [base]
-          input: sll r2 r3 4
-           _____________________________________
-          |opcode| rs  | rt  | rd  |shamt| funct|
-          |______|_____|_____|_____|_____|______|
-          
-          opcode  rs      rt      rd      shamt   funct
-          000000  00011   00000   00010   000100  000001
-          
-          binary_string
-          0000 0000 0110 0000 0001 0000 1000 0000 1
-          
-          hexadecimal_string result:
-          00c02101
-          ```
+        example:
+        ```
+        enter your intruction: sll r2 r3 r4
+        shift operations require a shamt, not a register
+        try again
+        
+        
+        enter your intruction: sll r2 r3 4
+        
+        R-Type
+        <mnemonic> <rd> <rs> <rt|shamt> [base]
+        input: sll r2 r3 4
+         _____________________________________
+        |opcode| rs  | rt  | rd  |shamt| funct|
+        |______|_____|_____|_____|_____|______|
+        
+        opcode  rs      rt      rd      shamt   funct
+        000000  00011   00000   00010   000100  000001
+        
+        binary_string
+        0000 0000 0110 0000 0001 0000 1000 0000 1
+        
+        hexadecimal_string result:
+        00c02101
+        ```
 * I-Type
     
     TBD
@@ -161,17 +187,17 @@ This script can handle binary, decimal, and hexadecimal values for the `<shamt>`
     2. decimal
     3. hexadecimal
 
-This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All valid decimals strings are also valid hexadecimal strings.  Thus, it is safest to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal, hexidecimal]`. 
+This order is necessary because all binary strings that start with a 1 (i.e. `1010`) are also valid decimal and hexadecimal strings. All valid decimals strings are also valid hexadecimal strings.  Thus, it is safest to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal, hexidecimal]`. 
 
 <div class="panel panel-info">
 **Note** 
-{: .panel-heading}
 <div class="panel-body">
 
-the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselved (`'dec'h` == `'3564'd`), which could lead to undesired consequences that are deifficult to discover and debug.
+the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselved (`'dec'h` == `'3564'd`), which could lead to undesired consequences that are difficult to discover and debug.
 
 </div>
 </div>
+
 The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for the sake of continuity.
 
 Here is an example. Notice how the bit value of `immediate` changes with the data type:
