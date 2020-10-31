@@ -14,24 +14,24 @@ There are two main ways to interact with this script.
     
     * interactive mode:
       
-      <img src="/CS147DVParser/interactiveParser.gif" width="600" height="500"/>
+      <img src="/CS147DVParser/interactiveParser.gif" width="400" height="350"/>
     
       press `ctrl-c` at any time to exit.
 
     * passing in instructions as arguments:
       
-      <img src="/CS147DVParser/commandlineParser.gif" width="600" height="500"/>
+      <img src="/CS147DVParser/commandlineParser.gif" width="400" height="350"/>
 
 
       Pass in as many instructions as you want.
     
-      <img src="/CS147DVParser/2argCommandlineParser.gif" width="600" height="1000"/>
+      <img src="/CS147DVParser/2argCommandlineParser.gif" width="400" height="666"/>
     
     * Pass in instructions from a file. 
       File must contain one instructions per line. 
       The script will remove any comments starting with  `//` , `#` , `/*`
     
-      <img src="/CS147DVParser/ParsefromFile.gif" width="600" height="1000"/>
+      <img src="/CS147DVParser/ParsefromFile.gif" width="400" height="666"/>
     
     
 2. You can also import the script as a module into your own script.
@@ -117,6 +117,6 @@ This script can handle binary, decimal, and hexadecimal values for the `<shamt>`
 This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All decimals strings are also valid hexadecimal strings.  Thus it is best to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal]`. Note the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings, which could lead to problems. The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for continuities sake.
 
 Here is an example. Notice how the bit value of `immediate` changes with the data type:
-<img src="/CS147DVParser/baseTypesExmple.gif" width="600" height="1000"/>
+<img src="/CS147DVParser/baseTypesExmple.gif" width="400" height="666"/>
     
 
