@@ -84,6 +84,16 @@ There are two main ways to interact with this script.
     ```
     
     setting  to `vprint=devnull` will supprsee the above print statements
+    
+    <div class="panel panel-warning">
+    **Warning**
+    {: .panel-heading}
+    <div class="panel-body">
+
+    Suppressing stderr output makes it much more difficult to determine if your instruction is encoded in hexadecimal correctly! Thus I recommend against it
+
+    </div>
+    </div>
 
     ```python
     hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint'devnull')
@@ -151,8 +161,15 @@ This script can handle binary, decimal, and hexadecimal values for the `<shamt>`
 
 This order is necessary because all binary strings that start with a 1 ex:`1010` are also valid decimal and hexadecimal strings. All valid decimals strings are also valid hexadecimal strings.  Thus, it is safest to expressly declare what data type you want. The options are `['bin, binary, decimal, decamal, hex, hexadecimal, hexidecimal]`. 
 
-Note: the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselved (`'dec'h` == `'3564'd`), which could lead to undesired consequences that are deifficult to discover and debug.
+<div class="panel panel-info">
+**Note** 
+{: .panel-heading}
+<div class="panel-body">
 
+the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselved (`'dec'h` == `'3564'd`), which could lead to undesired consequences that are deifficult to discover and debug.
+
+</div>
+</div>
 The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for the sake of continuity.
 
 Here is an example. Notice how the bit value of `immediate` changes with the data type:
