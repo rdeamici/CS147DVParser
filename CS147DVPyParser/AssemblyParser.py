@@ -1,5 +1,5 @@
 #!/usr/bin/env/python
-
+from __future__ import print_function
 import sys
 import os
 import argparse
@@ -172,7 +172,8 @@ def convert_to_bin(field,padding,field_name=''):
             try:
                 num = int(field,16)
             except ValueError:
-                raise BaseError('could not convert '+field+' to a binary|decimal|hexadecimal number')
+                err_code = 'could not convert '+field+' to a binary|decimal|hexadecimal number'
+                raise BaseError(err_code)
     
     # remove first 2 characters from bin(num), which will be '0b'
     # then pad with leading 0s to the size as requested by padding variable
@@ -362,7 +363,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
         vprint.write(' <mnemonic> <address> [base]\n')
         address, base = parse_jtype(mnemonic, fields)
         vprint.write(' input: '+instruction+'\n')
-        vprint.write('  _________________________________\n\n')
+        vprint.write('  _________________________________\n')
         vprint.write(' |opcode|          address         |\n')
         vprint.write(' |______|__________________________|\n\n')
         address = field_to_binary(address,base,26) if base else convert_to_bin(address,26)
@@ -484,6 +485,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             # these could both possibly be sys.stdout, however its
             # safe to close sys.stdout here since immediately exiting
+            sys.stderr.write('\n')
             outfile.close()
             vprint.close()
             sys.exit(0)
