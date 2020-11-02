@@ -4,26 +4,48 @@ import sys
 import os
 import argparse
 import re
-
-if hasattr(__builtins__, 'raw_input'):
-      input=raw_input
+from builtins import input
 '''
  * a python implementation of
  * @author Jordan's java project
  *
  *	A class that can parse CS147DV instructions into their hexadecimal value
 '''
+class CS147DVError(Exception):
+    pass
 
-class MnemonicError(KeyError):
-    def __init__(self, mnemonic, message="invalid mnemonic: "):
-        self.message = message + mnemonic
-        super().__init__(self.message)
+class MnemonicError(CS147DVError):
+    pass
 
-class RtypeError(IndexError):
-    def __init__(self, mnemonic, specifics, message="invalid R-type Instruction: "):
-        self.mnemonic = mnemonic
-        self.message = message+mnemonic+specifics+'\n'
-        super().__init__(self.message)
+class RtypeError(CS147DVError):
+    pass
+
+class ItypeError(CS147DVError):
+    pass
+
+class JtypeError(CS147DVError):
+    pass
+
+class NumTypeError(CS147DVError):
+    pass
+
+class BaseError(CS147DVError):
+    pass
+
+class FieldLengthError(CS147DVError):
+    pass
+
+class RegisterError(CS147DVError):
+    pass
+
+class ShamtError(CS147DVError):
+    pass
+
+class ImmediateError(CS147DVError):
+    pass
+
+class AddressError(CS147DVError):
+    pass
 
 rtype_mnemonics = ["add", "sub", "mul", "and", "or", "nor", "slt", "sll", "srl","jr"]
 itype_mnemonics = ["addi", "muli", "andi", "ori", "lui", "slti", "beq", "bne", "lw", "sw"]
@@ -80,192 +102,217 @@ opCodes = {
     "pop" : "011100"
 }
 
-def x_to_binary(s, base, pad, component):
-    try:
-        binary = bin(int(s,base))[2:].zfill(pad)
-    except ValueError as e:
-        assert False, "invalid base of "+str(base)+" for " +component+ " input '" + s + "'"
+def validate_field_len(field, field_bin_value, length,field_name):
+    # fields with length 5 must have a declared field_name
+    # since shamt, registers both have length 5
+    if not field_name:
+        field_name = 'immediate' if length == 16 else 'address'
+    if len(field_bin_value) > length:
+        FieldLengthError_msg = field+' = '+field_bin_value
+        FieldLengthError_msg += '\ntoo long! field '+field_name+' length is '
+        FieldLengthError_msg += str(len(field_bin_value)) +', max length is '+str(length)
+        raise FieldLengthError(FieldLengthError_msg)
     
-    assert (len(binary) <= pad), s+' = '+binary+' is too big! binary length is ' + str(len(binary)) +', max size is '+str(pad)
-    return binary
+def field_to_binary(field, base, padding, field_name=''):
+    try:
+        field_dec_value = int(field,base)
+    except ValueError:
+        BaseError_msg = "invalid base: "+str(base)
+        BaseError_msg += "\nfor field: " +field_name+ '\nwith input: "' + field + '"'
+        raise BaseError(BaseError_msg)
+
+    field_bin_value = bin(field_dec_value)
+    if field_bin_value.startswith('-'):
+        raise RegisterError("register must contain a positive number.\nYour input: "+field)
+    
+    field_bin_value = field_bin_value[2:].zfill(padding)
+    validate_field_len(field,field_bin_value,padding,field_name)
+    return field_bin_value
+
+
 def get_funct(mnemonic):
     if mnemonic in functs:
         return functs[mnemonic]
     else:
-        raise MnemonicError(mnemonic)
+        FunctError_msg = "No Function available for mnemonc: "+mnemonic
+        FunctError_msg += '\noptions are: ( '+', '.join([k for k in functs]) + ' )'
+        raise MnemonicError(FunctError_msg)
+
 
 def get_base(numType):
-    if numType in numTypes:
-        return numTypes[numType]
+    if not numType: return ''
+    elif numType in numTypes: return numTypes[numType]
     else:
-        raise ValueError("invalid data Type: "+numType+'\noptions are '+", ".join([k for k in numTypes]))
+        NumTypeError_msg = "invalid Number data-type: "+numType
+        NumTypeError_msg += '\noptions are ( '+", ".join([k for k in numTypes])+' )'
+        raise NumTypeError(NumTypeError_msg)
+
 
 def get_opcode(mnemonic):
     if mnemonic in opCodes:
         return opCodes[mnemonic]
     else:
-        raise MnemonicError(mnemonic)
+        MnemonicError_msg = "invalid Mnemonic : " + mnemonic
+        MnemonicError_msg += '\noptions are ( '+', '.join([k for k in opCodes]) + ' )'
+        raise MnemonicError(MnemonicError_msg)
+
 
 def validate_reg_beginning(reg):
-    assert reg.lower().startswith('r'), 'register must start with [rR]. Your input: '+reg
+    if not reg.lower().startswith('r'):
+        raise RegisterError('register must start with [rR]. Your input: '+reg)
 
-def convert_to_bin(s,padding):
-    # vprint('in convert_to_bin\n')
-    # print('converting '+s+' into '+str(padding) + ' bit binary string')
+
+def convert_to_bin(field,padding,field_name=''):
     num = ''
     try: # have to do binary first, all binary is also valid decimal
-        num = int(s,2)
+        num = int(field,2)
     except:
-        # print(s+' is not a binary num')
         try: # have to do decimal next. All decimal is valid hex
-            num = int(s)
+            num = int(field)
         except: # try converting to hexadecimal
             try:
-                num = int(s,16)
+                num = int(field,16)
             except ValueError:
-                raise ValueError('could not convert '+s+' to a binary|decimal|hexadecimal number')
+                raise BaseError('could not convert '+field+' to a binary|decimal|hexadecimal number')
     
     # remove first 2 characters from bin(num), which will be '0b'
     # then pad with leading 0s to the size as requested by padding variable
-    bin_str = bin(num)[2:].zfill(padding)
-    assert len(bin_str) <= padding, s+' = '+bin_str+' is too large. max size for this component is '+str(padding) + ' bits'
+    bin_str = bin(num)
+    if bin_str.startswith('-'):
+        if padding == 6:
+            if field_name.startswith('r'):
+                raise RegisterError(field_name+' cannot be negative.\nyour input: '+field)
+            elif field_name == 'shamt':
+                raise ShamtError('shamt cannot be a negative number.\nyour input: '+field)
+        elif padding == 16:
+            raise ImmediateError('immediate field cannot be negative.\nyour input: '+field)
+        else:
+            raise AddressError('address field cannot be negative.\nyour input: '+field)
+    bin_str = bin_str[2:].zfill(padding)
+    validate_field_len(field, bin_str, padding, field_name)
     return bin_str
 
-def parse_rtype(mnemonic,rest):
-    # will fail if rest is not 3 items long
-    numType=''
-    base = ''
 
-    if mnemonic == 'jr' and len(rest) != 1:
-        raise RtypeError(mnemonic,' only takes one argument')
-    elif mnemonic in ('sll','srl') and 3 > len(rest) < 4:
-        raise RtypeError(mnemonic, ' requires 3 arguments and an optional data type for shift operations')
-    elif mnemonic not in ('jr','sll','srl') and len(rest) != 3:
-        raise RtypeError(mnemonic, ' requires exactly 3 arguments')
+def form_err_msg(mnemonic,fields, inst,restriction):
+    err_msg = inst+' requires '+restriction
+    err_msg += '\nyour input: "'+mnemonic+' '+' '.join(fields)+'" '
+    err_msg += '('+str(len(fields))+' field' + (')' if len(fields)==1 else 's)')
+    return err_msg
+
+def parse_rtype(mnemonic,fields):
+    # ensure correct number of instructions passed in for each instruction type
+    if not fields:
+        RtypeError_msg = form_err_msg(mnemonic,fields,inst='Every R-Type instruction',restriction='at least one field')
+        raise RtypeError(RtypeError_msg)
+    elif mnemonic == 'jr' and len(fields) != 1:
+        RtypeError_msg = form_err_msg(mnemonic, fields,inst=mnemonic,restriction='exactly 1 field')
+        raise RtypeError(RtypeError_msg)
+    # sll|srl can take an optional data type declaration
+    elif mnemonic in ('sll','srl') and not(3 <= len(fields) <= 4):
+        RtypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic, restriction='3 fields and an optional number data-type')
+        raise RtypeError(RtypeError_msg)
+    elif mnemonic not in ('jr','sll','srl') and len(fields) != 3:
+        RtypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic, restriction='exactly 3 fields')
+        raise RtypeError(RtypeError_msg)
     
-    try:
-        rd, rs, rt_or_shamt,numType = rest
-    except ValueError:
+    numType = ''
+    # set field values for each instruction type
+    if mnemonic == 'jr':
+        rs = fields[0]
+        registers = [rs]
+        rd = rt = shamt = '00000'
+    elif mnemonic in ('srl','sll'):
+        # [fields] must contain 3 or 4 values
         try:
-            rd,rs,rt_or_shamt = rest
-        except ValueError:
-            try: # jr instruction only uses rs
-                rs = rest[0]
-                rd = '00000'
-                rt_or_shamt = '00000' 
-            except IndexError as e:
-                raise RtypeError(mnemonic, ' unknown error')
-
-        registers = [rd,rs] if mnemonic != 'jr' else [rs]
-        for r in registers:
-            validate_reg_beginning(r)
-
-    if mnemonic in ('sll', 'srl'):
-        # print('rt_or_shamt = '+rt_or_shamt)
-        assert not rt_or_shamt.startswith('r'), 'shift operations require a shamt, not a register'
-        shamt = rt_or_shamt
-        if numType: base = get_base(numType)
-        rt = '00000'
+            rd, rs, shamt, numType = fields
+        except:
+            rd, rs, shamt  = fields
+        registers = [rd,rs]
+        rt = '00000'    
     else:
-        if mnemonic != 'jr':
-            validate_reg_beginning(rt_or_shamt)
-        rt = rt_or_shamt
+        rd, rs, rt = fields
+        registers = [rd,rs,rt]
         shamt = '00000'
+
+    # make sure registers start with [rR]
+    for r in registers:
+        validate_reg_beginning(r)
+
+    # if shamt starts with an r, error
+    if shamt.startswith('r'):
+        registerError_msg = mnemonic+' operation requires a shft amount, not a register'
+        registerError_msg += '\n your input: '+shamt
+        raise RegisterError(registerError_msg)
+
+    # if data type of shamt is declared, convert to numerical base value
+    # get_base() returns '' if not numType declared
+    base = get_base(numType)
     return rd, rs, rt, shamt, base
 
 
-def parse_itype(mnemonic, rest):
-    numType = ''
-    base = ''
-    if mnemonic == 'lui' and (len(rest) < 2 or len(rest) > 3):
-        assert False, "invalid lui instruction:\n expected 2-3 values, got " +str(len(rest))
-    elif mnemonic != 'lui' and (len(rest)< 3 or len(rest) > 4):
-        assert False, 'invalid '+mnemonic+' instruction:\n expected 3-4 values, got '+str(len(rest))
-    
-    try: #check if user gave a number type
-        rt, rs, immediate, numType = rest
-    except ValueError:
-        try:
-            rt, rs, immediate = rest
-            assert mnemonic != 'lui'
-        except Exception:
-            try: # lui instruction
-                rt, immediate, numType = rest
-                rs = '00000'
-            except ValueError as e:
-                try:
-                    rt, immediate = rest
-                    rs = '00000'
-                except ValueError as E:
-                    raise ValueError('invalid string for i-type instruction: '+mnemonic+'.\n'+str(e))
-    
-    registers = [rt,rs] if mnemonic != 'lui' else [rt]
+def parse_itype(mnemonic, fields):
+    # all itype instructions take at least 2 arguments
+    if not (2<=len(fields)<=3):
+        ItypeError_msg = form_err_msg(mnemonic,fields,inst='Every I-type instruction',restriction='at least 2 arguments')
+    if mnemonic == 'lui' and not(2<=len(fields)<=3):
+        ItypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic, restriction="2 fields and an optional number data-type")
+        raise ItypeError(ItypeError_msg)    
+    elif mnemonic != 'lui' and not(3<=len(fields)<=4):
+        ItypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic, restriction="3 fields and an optional number data-type")
+        raise ItypeError(ItypeError_msg)    
+
+    numType = ''    
+    if mnemonic == 'lui':
+        try: #check if user gave a number type
+            rt, immediate, numType = fields
+        except :
+            rt, immediate = fields
+            rs = '00000'
+        registers = [rt]
+    else:
+        try: 
+            rt, rs, immediate, numType = fields
+        except:
+            rt,rs, immediate = fields
+        registers = [rt,rs]
+
     for r in registers:
         validate_reg_beginning(r)
     
-    if mnemonic == 'lui':
-        assert rs == '00000', 'invalid lui instruction'
-    imm_err = 'immediate must be a hex|decimal|binary number. Your input: '+immediate
-    assert not immediate.lower().startswith('r'), imm_err
-    
-
-    if numType: base = get_base(numType)
+    base = get_base(numType)
     return rt,rs,immediate,base
 
-def parse_jtype(mnemonic, rest):
+def parse_jtype(mnemonic, fields):
+    if mnemonic in ('push','pop') and fields:
+        JtypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic,restriction='exactly 0 fields')
+        raise JtypeError(JtypeError_msg)
+    elif mnemonic in ('jmp','jal') and not(1<=len(fields)<=2):
+        JtypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic,restriction='exactly 1 field and an optional number data type')
+        raise JtypeError(JtypeError_msg)
+
     numType = ''
-    base = ''
-    if mnemonic in ('push','pop'):
-        assert not rest , mnemonic+' instruction takes no arguments'
-    else:
-        assert rest and len(rest) <= 2, mnemonic+' instruction takes 1 argument and an optional number type'
-    
-    try:
-        address, numType = rest
-    except Exception:
+    if mnemonic in ('jmp','jal'):
         try:
-            address  = rest[0]
-        except Exception:
-            address = '0x00'
-            base = 16
-    if numType: base = get_base(numType)
+            address, numType = fields
+        except:
+            address  = fields[0]
+    else:
+        address = '0x00'
+        base = 16
+    
+    base = get_base(numType)
     return address, base
 
 def convert_bin_to_hex(bin_s, length):
-    try:
-        hex_val = hex(int(bin_s,2))[2:].zfill(length)
-        assert len(hex_val) <= length, 'hex val is too big'
-    except TypeError:
-        raise TypeError('could not convert '+bin_s+ ' to hexadecimal')
-    else:
-        return hex_val
-def usage():
-    error = 'invalid instruction format'
-    error += '\ninstruction must be one of the following types:'
-    error += '\nR-type'
-    error += '\n\t<mnemonic> <rd>, <rs>, <rt|shamt>'
-    error += '\n\t<mnemonic> <rd>,<rs>,<rt|shamt>'
-    error += '\nR-type must have 4 arguments'
-    error += '\n\nI-type'
-    error += '\n\t<mnemonic> <rt>, <rs>, <immediate>'
-    error += '\n\t<mnemonic> <rt>,<rs>,<immediate>'
-    error += '\nI-type must have 4 arguments'
-    error += '\n\nJ-type'
-    error += '\n\t<mnemonic> <address>'
-    error += '\nJ-type must have 4 arguments'
-    error += '\nDo not forget the space after the mnemonic!'
-    error += "\n\n registers <rd>, <rs>, <rt> must start with an r followed by 1-2 digits:"
-    error += '\n\t (rR)<digit>[<digit>]'
-    error += '\n<shamt> must be a binary|hexadecimal|decimal number such that 0 < shamt < ((2^5) -1)'
-    error += '\n<immediate> must be a binary|hexadecimal|decimal number such that 0 < immediate < ((2^32) -1)'
-    error += '\n<address> must be a binary|hexadecimal|decimal number such that, when converted to a binary string,'
-    error += '\nthe number of digits is no more than 26'
-    error += '\n\nthe mnemonic must be a member of this set:'
-    error += '\n{}'.format(opCodes.keys()) 
-    print(error)
-    
+    # no need to do length checking because 
+    # all fields have already undergone length check 
+    #  by this point
+    return hex(int(bin_s,2))[2:].zfill(length)
+
+
 def parse_instruction(instruction, vprint=sys.stderr):
-    assert instruction, "No instruction provided"
+    if not instruction: raise CS147DVError("No instruction provided")
+    
     if vprint=='devnull':
         vprint = open(os.devnull,'w')
 
@@ -275,6 +322,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
         comment_index = instruction.find(comment_starter)
         if comment_index != -1:
             instruction = instruction[:comment_index]
+    
     opcode = ''
     rd = ''
     rs = ''
@@ -285,71 +333,70 @@ def parse_instruction(instruction, vprint=sys.stderr):
     address = ''
 
     components = instruction.lower().replace(',',' ').split()
-    mnemonic, rest = components[0], components[1:]
+    mnemonic, fields = components[0], components[1:]
     opcode = get_opcode(mnemonic)
     if mnemonic in rtype_mnemonics:
         vprint.write('\n R-Type detected\n')
         vprint.write(' <mnemonic> <rd> <rs> <rt|shamt> [base]\n\n')
-        rd, rs, rt, shamt, base = parse_rtype(mnemonic,rest)
+        rd, rs, rt, shamt, base = parse_rtype(mnemonic,fields)
         funct = get_funct(mnemonic)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  _____________________________________\n')
         vprint.write(' |opcode| rs  | rt  | rd  |shamt| funct|\n')
         vprint.write(' |______|_____|_____|_____|_____|______|\n\n')
-        if base: shamt = x_to_binary(shamt,base,5, 'shamt')
-        else: shamt = convert_to_bin(shamt,5)
+        if base:
+            shamt = field_to_binary(shamt,base,5,field_name="shamt")
+        else:
+            shamt = convert_to_bin(shamt,5,field_name="shamt")
 
     elif mnemonic in itype_mnemonics:
         vprint.write('\n I-Type detected\n')
         vprint.write(' <mnemonic> <rt> <rs> <imm> [base]\n\n')
-        rt, rs, immediate, base = parse_itype(mnemonic,rest)
+        rt, rs, immediate, base = parse_itype(mnemonic,fields)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  ___________________________________\n')
         vprint.write(' |opcode| rs  | rt  |   immediate    |\n')
         vprint.write(' |______|_____|_____|________________|\n\n')
-        if base:
-            immediate = x_to_binary(immediate, base, 16, 'immediate')
-        else:
-            immediate = convert_to_bin(immediate, 16)
-    else:
+        immediate = field_to_binary(immediate,base,16) if base else convert_to_bin(immediate,16)
+    else: #J-type instruction
         vprint.write('\n J=Type detected\n')
         vprint.write(' <mnemonic> <address> [base]\n')
-        address, base = parse_jtype(mnemonic, rest)
+        address, base = parse_jtype(mnemonic, fields)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  _________________________________\n\n')
         vprint.write(' |opcode|          address         |\n')
         vprint.write(' |______|__________________________|\n\n')
-        if base: address = x_to_binary(address,base,26, 'address')
-        else: address = convert_to_bin(address,26)
+        address = field_to_binary(address,base,26) if base else convert_to_bin(address,26)
     
-    if rd: rd = x_to_binary(rd[1:],10,5, 'rd')
-    if rt: rt = x_to_binary(rt[1:],10,5, 'rt')
-    if rs: rs = x_to_binary(rs[1:],10,5, 'rt')
+    if rd: rd = field_to_binary(rd[1:],10,5, field_name='rd')
+    if rt: rt = field_to_binary(rt[1:],10,5, field_name='rt')
+    if rs: rs = field_to_binary(rs[1:],10,5, field_name='rt')
 
     to_print = []
     vprint.write(' ')
-    for i, s in [[opcode, 'opcode'],[address,'address'],[rs,'rs'],[rt, 'rt'],
+    for val, name in [[opcode, 'opcode'],[address,'address'],[rs,'rs'],[rt, 'rt'],
                  [immediate, 'imm'],[rd, 'rd'],[shamt,'shamt'],[funct,'funct']]:
-        if i:
-            vprint.write(s+'\t')
-            to_print.append(i)
+        if val:
+            vprint.write(name+'\t')
+            to_print.append(val)
 
     vprint.write('\n ')
     vprint.write('\t'.join(to_print)+'\n\n')
-    bin_inst = opcode+address+rs+rt+immediate+rd+shamt+funct
-    assert len(bin_inst) <= 32, " binary string too long!\n" +bin_inst
-    vprint.write(' binary_string\n ')
-    for i in range(len(bin_inst)):
+    bin_instruction = opcode+address+rs+rt+immediate+rd+shamt+funct
+    # probably unnecessary. leaving it anyways as a precaution
+    assert len(bin_instruction) <= 32, " binary string too long!\n" +bin_instruction
+    vprint.write(' binary_string:\n ')
+    for i in range(len(bin_instruction)):
         if (i == 0) or (i%4 > 0):
-            vprint.write(bin_inst[i])
+            vprint.write(bin_instruction[i])
         else:
-            vprint.write(' '+bin_inst[i])
+            vprint.write(' '+bin_instruction[i])
     vprint.write('\n')
-    hex_inst = convert_bin_to_hex(bin_inst,8)
-    return hex_inst
+    hex_instruction = convert_bin_to_hex(bin_instruction,8)
+    return hex_instruction
 
 
-def interactive_mode(vprint, first_time):
+def get_instruction(vprint, first_time):
     if first_time:
         vprint.write('\n WELCOME TO CS147DV INTERACTIVE INSTRUCTION PARSER!\n')
         vprint.write(' ENTER IN YOUR INSTRUCTIONS ONE AT A TIME\n')
@@ -360,33 +407,32 @@ def interactive_mode(vprint, first_time):
         vprint.write('   J-Type:  <mnemonic> <address>\n')
         vprint.write(' OUTPUT WILL BE A 32 BIT HEXADECIMAL NUMBER\n')
         vprint.write(' PRESS ctrl-c TO EXIT AT ANY TIME\n\n')
-
     instruction = input("\n enter your intruction: ")
     return instruction 
 
 if __name__ == "__main__":
-    epilog = 'input: an instruction or set of instructions\n'
-    epilog += '       passed in via the command line, as a file, or interactively.\n\n'
-    epilog += 'instruction types: R-type: <mnemonic> <rd> <rs> <rt|shamt>\n'
-    epilog += '                   I-type: <mnemonic> <rt> <rs> <immediate>\n'
-    epilog += '                   J-type: <mnemonic> <address>\n\n'
-    epilog += 'output: instruction will be parsed into its component parts.\n'
-    epilog += '        By default the:\n'
-    epilog += '        \t- instruction type\n'
-    epilog += '        \t- bit values of each component\n'
-    epilog += '        \t- result in the form of a 32-bit binary string\n'
-    epilog += '        will be output to stderr\n\n'
-    epilog += '        the resulting hexadecimal string will be output to stdout.\n'
+    info = 'input: an instruction or set of instructions\n'
+    info += '       passed in via the command line, as a file, or interactively.\n\n'
+    info += 'instruction types: R-type: <mnemonic> <rd> <rs> <rt|shamt>\n'
+    info += '                   I-type: <mnemonic> <rt> <rs> <immediate>\n'
+    info += '                   J-type: <mnemonic> <address>\n\n'
+    info += 'output: instruction will be parsed into its component parts.\n'
+    info += '        By default the:\n'
+    info += '        \t- instruction type\n'
+    info += '        \t- bit values of each component\n'
+    info += '        \t- result in the form of a 32-bit binary string\n'
+    info += '        will be output to stderr\n\n'
+    info += '        the resulting hexadecimal string will be output to stdout.\n'
+    
     parser = argparse.ArgumentParser(description="Program to parse CS147DV instructions into hexadecimal",
                             prog = 'CS147DVInstructionParser',
                             formatter_class=argparse.RawDescriptionHelpFormatter,
-                            epilog = epilog)
-
+                            epilog = info)
     parser.add_argument('instructions',nargs='*', default=[], help = 'CS147DV instructions wrapped in "quotes"')
     parser.add_argument('-f','--file', nargs='?',type=argparse.FileType('r'), help='file of CS147DV instructions, one per line')
     parser.add_argument_group()
     parser.add_argument('-o','--outfile', nargs='?',
-                        default=sys.stdout, help='File to save results to. Default setting will write over whatever is already in this file, if it exists')
+                        default=sys.stdout, help='File to save results to.')
     parser.add_argument('-a','--append', action='store_true',help='append results to outfile, instead of writing over the outfile.')
     parser.add_argument('-i','--interactive',action='store_true', help='evoke interactive mode.')
     parser.add_argument('-q','--quiet', action='store_true', help='suppress meta-info about each instruction')
@@ -414,10 +460,7 @@ if __name__ == "__main__":
 
     # set file to print meta information to stdout
     #  or to devnull for 'quiet' mode
-    if args.quiet:
-        vprint = open(os.devnull,'w')
-    else:
-        vprint = sys.stdout
+    vprint = open(os.devnull,'w') if args.quiet else sys.stdout
     
     for i in instructions:
         # hex_result = parse_instruction(i,vprint)
@@ -425,8 +468,8 @@ if __name__ == "__main__":
         try:
             hex_result = parse_instruction(i,vprint)
         except Exception as e:
-            sys.stderr.write(str(e))
-            sys.stderr.write('\n')
+            print(e,file=sys.stderr)
+            print('\n',file=sys.stderr)
         else:
             vprint.write('\n hexadecimal_string result: \n')
             outfile.write(' '+hex_result+'\n')
@@ -434,7 +477,7 @@ if __name__ == "__main__":
     first_time=True
     while interactive:
         try:
-            i = interactive_mode(vprint, first_time)
+            i = get_instruction(vprint, first_time)
             hex_result = parse_instruction(i,vprint)
         except Exception as e:
             sys.stderr.write(' '+str(e))
@@ -449,4 +492,6 @@ if __name__ == "__main__":
             vprint.write('\n hexadecimal_string result:\n')
             outfile.write(' '+hex_result+'\n\n')
         first_time = False
-            
+    
+    outfile.close()
+    vprint.close()       
