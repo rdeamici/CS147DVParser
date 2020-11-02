@@ -3,7 +3,6 @@
 import sys
 import os
 import argparse
-import re
 from builtins import input
 '''
  * a python implementation of
