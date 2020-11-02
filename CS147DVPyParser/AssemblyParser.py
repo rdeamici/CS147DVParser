@@ -333,12 +333,12 @@ def parse_instruction(instruction, vprint=sys.stderr):
     address = ''
 
     components = instruction.lower().replace(',',' ').split()
-    mnemonic, rest = components[0], components[1:]
+    mnemonic, fields = components[0], components[1:]
     opcode = get_opcode(mnemonic)
     if mnemonic in rtype_mnemonics:
         vprint.write('\n R-Type detected\n')
         vprint.write(' <mnemonic> <rd> <rs> <rt|shamt> [base]\n\n')
-        rd, rs, rt, shamt, base = parse_rtype(mnemonic,rest)
+        rd, rs, rt, shamt, base = parse_rtype(mnemonic,fields)
         funct = get_funct(mnemonic)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  _____________________________________\n')
@@ -352,7 +352,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
     elif mnemonic in itype_mnemonics:
         vprint.write('\n I-Type detected\n')
         vprint.write(' <mnemonic> <rt> <rs> <imm> [base]\n\n')
-        rt, rs, immediate, base = parse_itype(mnemonic,rest)
+        rt, rs, immediate, base = parse_itype(mnemonic,fields)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  ___________________________________\n')
         vprint.write(' |opcode| rs  | rt  |   immediate    |\n')
@@ -361,7 +361,7 @@ def parse_instruction(instruction, vprint=sys.stderr):
     else: #J-type instruction
         vprint.write('\n J=Type detected\n')
         vprint.write(' <mnemonic> <address> [base]\n')
-        address, base = parse_jtype(mnemonic, rest)
+        address, base = parse_jtype(mnemonic, fields)
         vprint.write(' input: '+instruction+'\n')
         vprint.write('  _________________________________\n\n')
         vprint.write(' |opcode|          address         |\n')
