@@ -221,16 +221,11 @@ It is safest to expressly declare what data type you want. The options are:
 *  `decimal`
 * `hex, hexadecimal` 
 
-<div class="panel panel-info">
 **Note** 
-<div class="panel-body">
-
 the shortened versions `[b, d, dec]` are not allowed because they are all valid hexadecimal strings in themselves (`'dec'h` == `'3564'd`)
 
 This could lead to undesired consequences that are difficult to discover and debug.
 
-</div>
-</div>
 
 The single character `h`, while not a valid binary, decimal, or hexadecimal string, is also not allowed for the sake of continuity.
 
