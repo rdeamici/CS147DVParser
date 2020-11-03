@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: CS147DVPyParser-rdeamicis
+Version: 0.0.1
+Summary: A package for converting CS147DV assembly language instructions into hexadecimal code
+Home-page: https://github.com/rdeamici/CS147DVParser
+Author: Richard DeAmicis
+Author-email: rtdeamicis@gmail.com
+License: UNKNOWN
+Description: # CS147DVParser
+        
+        This package is used to quickyl convert CS147DV instructions into hexadecimal. This only works with the 2019-2020 version of the ISA. 
+        
+        The program was originally written by Jordan Conragan in the fall semester of 2019. Rick Deamicis created a Python implementation for the Fall 2020 version of the course.
+        Pull requests are encouraged. 
+        
+        # How to use
+        The Java implemention of the program and instructions can be found in the CS147DVJavaParser folder.
+        
+        The Python implementation and instructions can be found in CS147DVPyParser
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Java
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

@@ -1,0 +1,8 @@
+README.md
+setup.py
+CS147DVPyParser/AssemblyParser.py
+CS147DVPyParser/__init__.py
+CS147DVPyParser_rdeamicis.egg-info/PKG-INFO
+CS147DVPyParser_rdeamicis.egg-info/SOURCES.txt
+CS147DVPyParser_rdeamicis.egg-info/dependency_links.txt
+CS147DVPyParser_rdeamicis.egg-info/top_level.txt
