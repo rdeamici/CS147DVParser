@@ -313,7 +313,7 @@ def convert_bin_to_hex(bin_s, length):
 def parse_instruction(instruction, vprint=sys.stderr):
     if not instruction: raise CS147DVError("No instruction provided")
     
-    if vprint=='devnull':
+    if vprint=='quiet':
         vprint = open(os.devnull,'w')
 
     # remove trailing comments if applicable

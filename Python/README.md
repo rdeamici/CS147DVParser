@@ -1,20 +1,21 @@
 # CS147DVPyParser
 
-This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 to quickly convert CS147DV instructions to hexadecimal. It may not work as intented if CS147DV has been changed/updated since it was last updated in December of 2019. Pull requests are encouraged.
+This program is used to quickly convert CS147DV instructions to hexadecimal. It may not work as intented if CS147DV has been changed/updated since it was last updated in December of 2019. Pull requests are encouraged.
 
-# Requirements
-The program is known to work with Python 3.7+. It should also work with Python2.7, but is untested.
+## Requirements
+The program is known to work with Python2.7+ and 3.7+.
 
-Dependencies include the built-in packages `sys`, `os`, and `argparse`
+The package does not rely on any external dependencies.
 
 # Quick set-up
-There are two main ways to interact with this program
+There are two main ways to interact with this program: from the command line, and [imported as a module to a script](#2.-import-the-program-as-a-module)
 
-## 1. Run the program from the command line
+## 1) Run the program from the command line
 
-The program can be run directly from the command line. It has a fairly robust set of features, and comes in 3 modes.
+The program can be run directly from the command line. It has a fairly robust set of features, and comes in 3 modes: interactive, command-line driven, and file driven mode.
 
-### interactive mode
+---
+### a) interactive mode
   When run with no arguments, the program will enter interactive mode:
       
   ```python
@@ -32,57 +33,85 @@ The program can be run directly from the command line. It has a fairly robust se
   
   enter your intruction: _
   ```
+
+  Interactive mode can also be evoked explicitly with the `-i` flag:
       
-  press `ctrl-c` to exit.
+      $ python AssemblyParser.py -i
+---
+### b) command-line driven mode
 
-### non-interactive mode
-There are two non-interactive modes available
-1. write instructions directly in the commandline.
+In this mode, the user can pass in any valid CS147DV assembly code instruction to the program as a command-line argument:
 
-   One instruction:
+ One instruction:
    ```
    $ python AssemblyParser.py "addi r2 r3 5"
-   
-   I-Type
-   <mnemonic> <rt> <rs> <imm> [base]
-   input: addi r2 r3 5
-    ___________________________________
-   |opcode| rs  | rt  |   immediate    |
-   |______|_____|_____|________________|
-   
-   opcode  rs      rt      imm
-   001000  00011   00010   0000000000000101
-   
-   binary_string
-   0010 0000 0110 0010 0000 0000 0000 0101
-   
-   hexadecimal_string result:
-   20620005
-   
-   $ _
    ``` 
   
-   More than one instruction:  
+More than one instruction:  
   
-        $ python AssemblyParser.py "<instruction1>" "<instruction2>"
-2. file-read mode. Instructions are read in from a file
+    $ python AssemblyParser.py "<instruction1>" "<instruction2>"
+
+Assembly instructions will be parsed one at a time in the order they are passed in on the command line from left to right.
+
+---
+### c) file driven mode.
+
+In this mode, a text file contatining a list of instructions are passed in to the program. The file must consist of a single instruction on each line of the file. The instructions are parsed one at a time from top to bottom.
     
-      $ python AssemblyParser.py -f instructions.txt  
+    $ python AssemblyParser.py -f instructions.txt  
+---
+**note:** Modes can be mixed and matched. You can even run all three modes at once:
 
-**note:** modes can be mixed and matched. You can even run all three modes at once:
+    $ python AssemblyParser.py "addi r1 r2 3" -f instructions.txt -i 
 
-      $ python AssemblyParser.py "addi r1 r2 3" -f instructions.txt -i 
-
-When mixing and matching modes, the instructions always be read in the following order
+When mixing and matching modes, the instructions will be processed in the following order
 1. from the command line
 2. from a file
 3. from interactive mode.
 
-click here for information about proper [instruction formatting](#CS147DV-Instruction-Format)
 ---
+### Output
+output from parsing an instruction will look similar to this:
+```
+ R-Type detected
+ <mnemonic> <rd> <rs> <rt|shamt> [base]
 
+ input: add r1 r2 r3
+  _____________________________________
+ |opcode| rs  | rt  | rd  |shamt| funct|
+ |______|_____|_____|_____|_____|______|
+
+ opcode rs      rt      rd      shamt   funct
+ 000000 00010   00011   00001   00000   100000
+
+ binary_string:
+ 0000 0000 0100 0011 0000 1000 0010 0000
+
+ hexadecimal_string result:
+ 00430820
+ ```
+
+---
+### options
+
+additional options include:
+
+- `-o, --outfile (outfile)`: specify a file to write the hexadecimal output from each instruction parse. The current contents of `<outfile>` will be completely overwritten.
+- `-a, --append`: append the results of each instruction to `<outfile>` instead of overwriting. This option does nothing if not combined with the `-o` option.
+- `-q, --quiet`: suppress all other [output](#output) except for the hexadecimal parse of each instruction.
+
+other arguments include:
+
+* `-h, --help` : display help information and exit
+* `-f, --file` : parse instructions from a file
+* `-i, --interactive` : evoke interactive mode.
+
+click here for information about proper [CS147DV Assembly Instruction formatting](#CS147DV-Instruction-Format)
+
+---
+---
 ## 2. import the program as a module    
-You can import AssemblyParser.py as a module into your own program.
+AssemblyParser.py can be `import`ed as a module into another program.
 
 ```python
 import AssemblyParser
@@ -107,15 +136,22 @@ binary_string
 0010 0000 0110 0010 0000 0000 0000 0101
 ```
 
-the call to `print(hex_result)` in the above example will print: `20620005`
+the call to `print(hex_result)` in the above example will print: 
 
-To suppress the meta-information entirely, redirect that outpufrom `sys.stderr` to 'devnull'. Do this by passing in the strin'devnull' as a second argument to `parse_instructions()`
+```
+20620005
+```
+
+To suppress the meta-information entirely, set the verbose printer `vprint` to `'quiet'`:
 
 ```python
-hex_result = AssemblyParser.parse_instruction('addi r2 r3 5''devnull')
+hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint='quiet')
 print(hex_result)
 ```
-The above script will only print out the result to stdout: `20620005`
+The above script will only print out the hexadecimal result to stdout: 
+```
+20620005
+```
 
 To parse many instructions:
 
@@ -127,21 +163,9 @@ results = [AssemblyParser(i) for i in instructions]
 for r in results:
   print(r)
 ```
-
-
-
-# Command Line options
-The command line script support numerous options, or flags.
-
-* `-h, --help` : display help information and exit
-* `-q, --quiet` : suppress meta-information. This can be used in any mode.
-* `-f, --file` : parse instructions from a file
-* `-o, --outfile` : provide a file to save results to
-* `-a, --append` : append results to outfile, instead of overwriting
-* `-i, --interactive` : evoke interactive mode. This can be combined with `-f` flag and instructions added from commandline
-
-
-## CS147DV Instruction Format
+---
+---
+# CS147DV Instruction Format
 
 Instructions must be of the form:
 * R-Type :
