@@ -310,11 +310,13 @@ def convert_bin_to_hex(bin_s, length):
     return hex(int(bin_s,2))[2:].zfill(length)
 
 
-def parse_instruction(instruction, vprint=sys.stderr):
+def parse_instruction(instruction, vprint='os.devnull'):
     if not instruction: raise CS147DVError("No instruction provided")
     
-    if vprint=='quiet':
-        vprint = open(os.devnull,'w')
+    if vprint == 'verbose':
+        vprint = sys.stderr
+    elif vprint == 'os.devnull':
+        vprint = open(os.devnull, 'w')
 
     # remove trailing comments if applicable
     comment_starters = ['//','#','/*']
@@ -459,7 +461,7 @@ if __name__ == "__main__":
         interactive = not instructions
 
     # set file to print meta information to stdout
-    #  or to devnull for 'quiet' mode
+    # or to devnull for 'quiet' mode
     vprint = open(os.devnull,'w') if args.quiet else sys.stdout
     
     for i in instructions:
