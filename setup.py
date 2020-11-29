@@ -5,7 +5,7 @@ with open("Python/README.md",'r') as fh:
 
 setuptools.setup(
     name="cs147dvparser",
-    version="0.0.4",
+    version="0.0.5",
     author="Richard DeAmicis, Jordan Conragan",
     author_email="rtdeamicis@gmail.com, jordanvonpordan@gmail.com",
     description="converts CS147DV assembly language instructions into hexadecimal code",

@@ -1,3 +1,0 @@
-addi r1, r2, 5 // add contents of r2 and '5', store in r1
-sll r2 r3 5    # shift contents of r3 left 5, store in r2
-push           /* push operation takes no  other arguments*/
