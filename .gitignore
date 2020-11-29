@@ -2,3 +2,6 @@
 build/
 cs147dvparser.egg-info/
 dist/
+
+# Python automatically created cache files
+Python/__pycache__/
