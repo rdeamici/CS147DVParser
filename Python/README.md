@@ -1,20 +1,35 @@
 # CS147DVPyParser
+This program is intended for students of Kaushik Patra's San Jose State University CS147 - Computer Architecture class. It can be used to quickly convert CS147DV Assembly language instructions to hexadecimal machine code. It may not work as intended if CS147DV has been changed/updated since it was last updated in December of 2019.
 
-This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 to quickly convert CS147DV instructions to hexadecimal. It may not work as intented if CS147DV has been changed/updated since it was last updated in December of 2019. Pull requests are encouraged.
+## CS147DV Instruction Set Architecture
+This architecture is created and maintained by Mr. Kaushik Patra for his CS147 - Computer Architecture class. His contact information is:
 
-# Requirements
-The program is known to work with Python 3.7+. It should also work with Python2.7, but is untested.
+    Kaushik Patra, Lecturer,
+    Department Of Computer Science,
+    San Jose State University,
+    One Washington Square,
+    San Jose, CA.
+    
+    email: kaushik.patra@sjsu.edu
 
-Dependencies include the built-in packages `sys`, `os`, and `argparse`
+
+## Requirements
+The program is known to work with Python2.7+ and 3.7+. The package does not rely on any external dependencies.
 
 # Quick set-up
-There are two main ways to interact with this program
+There are two main ways to interact with this program: 
+1. [from the command line](#1\)-Run-the-program-from-the-command-line) 
+2. [imported as a module](#2.-import-the-program-as-a-module)
 
-## 1. Run the program from the command line
+## 1) Run the program from the command line
 
-The program can be run directly from the command line. It has a fairly robust set of features, and comes in 3 modes.
+The program can be run directly from the command line. It has a fairly robust set of features, and comes in 3 modes: 
+1. [interactive mode](###a\)-interactive-mode)
+2. [command-line driven mode](#b\)-command-line-driven-mode)
+3. [file driven mode](###c\)-file-driven-mode)
 
-### interactive mode
+---
+### a) interactive mode
   When run with no arguments, the program will enter interactive mode:
       
   ```python
@@ -32,66 +47,104 @@ The program can be run directly from the command line. It has a fairly robust se
   
   enter your intruction: _
   ```
+
+  Interactive mode can also be evoked explicitly with the `-i` flag:
       
-  press `ctrl-c` to exit.
+      $ python AssemblyParser.py -i
+---
+### b) command line driven mode
 
-### non-interactive mode
-There are two non-interactive modes available
-1. write instructions directly in the commandline.
+In this mode, the user can pass in any valid CS147DV assembly code instruction to the program as a command-line argument:
 
-   One instruction:
+ One instruction:
    ```
    $ python AssemblyParser.py "addi r2 r3 5"
-   
-   I-Type
-   <mnemonic> <rt> <rs> <imm> [base]
-   input: addi r2 r3 5
-    ___________________________________
-   |opcode| rs  | rt  |   immediate    |
-   |______|_____|_____|________________|
-   
-   opcode  rs      rt      imm
-   001000  00011   00010   0000000000000101
-   
-   binary_string
-   0010 0000 0110 0010 0000 0000 0000 0101
-   
-   hexadecimal_string result:
-   20620005
-   
-   $ _
    ``` 
   
-   More than one instruction:  
+More than one instruction:  
   
-        $ python AssemblyParser.py "<instruction1>" "<instruction2>"
-2. file-read mode. Instructions are read in from a file
+    $ python AssemblyParser.py "<instruction1>" "<instruction2>"
+
+Assembly instructions will be parsed one at a time in the order they are passed in on the command line from left to right.
+
+---
+### c) file driven mode.
+
+In this mode, a text file contatining a list of instructions are passed in to the program. The file must consist of a single instruction on each line of the file. The instructions are parsed one at a time from top to bottom.
     
-      $ python AssemblyParser.py -f instructions.txt  
+    $ python AssemblyParser.py -f instructions.txt  
+---
+**note:** Modes can be mixed and matched. You can even run all three modes at once:
 
-**note:** modes can be mixed and matched. You can even run all three modes at once:
+    $ python AssemblyParser.py "addi r1 r2 3" -f instructions.txt -i 
 
-      $ python AssemblyParser.py "addi r1 r2 3" -f instructions.txt -i 
-
-When mixing and matching modes, the instructions always be read in the following order
+When mixing and matching modes, the instructions will be processed in the following order
 1. from the command line
 2. from a file
 3. from interactive mode.
 
-click here for information about proper [instruction formatting](#CS147DV-Instruction-Format)
 ---
+### Output
+output from parsing an instruction will look similar to this:
+```
+ R-Type detected
+ <mnemonic> <rd> <rs> <rt|shamt> [base]
 
+ input: add r1 r2 r3
+  _____________________________________
+ |opcode| rs  | rt  | rd  |shamt| funct|
+ |______|_____|_____|_____|_____|______|
+
+ opcode rs      rt      rd      shamt   funct
+ 000000 00010   00011   00001   00000   100000
+
+ binary_string:
+ 0000 0000 0100 0011 0000 1000 0010 0000
+
+ hexadecimal_string result:
+ 00430820
+ ```
+
+---
+### options
+
+additional options include:
+
+- `-o, --outfile (outfile)`: specify a file to write the hexadecimal output from each instruction parse. The current contents of `<outfile>` will be completely overwritten.
+- `-a, --append`: append the results of each instruction to `<outfile>` instead of overwriting. This option does nothing if not combined with the `-o` option.
+- `-q, --quiet`: suppress all other [output](#output) except for the hexadecimal parse of each instruction.
+
+other arguments include:
+
+* `-h, --help` : display help information and exit
+* `-f, --file` : parse instructions from a file
+* `-i, --interactive` : evoke interactive mode.
+
+click here for information about proper [CS147DV Assembly Instruction formatting](#CS147DV-Instruction-Format)
+
+---
+---
 ## 2. import the program as a module    
-You can import AssemblyParser.py as a module into your own program.
+AssemblyParser.py can be `import`ed as a module into another program.
 
 ```python
 import AssemblyParser
 hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
 print(hex_result)
 ```
+The above script will output:
+```
+20620005
+```
 
-the script's default setting is verbose. The call to `parse_instructions()` will send the following output to `stderr` by default:
-
+To see meta-data about each instruction, set the verbose printer `vprint` to `'verbose'`:
+```python
+import AssemblyParser
+hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint='verbose')
+print('\nhex result')
+print(hex_result)
+```
+which will output:
 ```
 I-Type
 <mnemonic> <rt> <rs> <imm> [base]
@@ -105,17 +158,11 @@ opcode  rs      rt      imm
 
 binary_string
 0010 0000 0110 0010 0000 0000 0000 0101
+
+hex result
+20620005
 ```
 
-the call to `print(hex_result)` in the above example will print: `20620005`
-
-To suppress the meta-information entirely, redirect that outpufrom `sys.stderr` to 'devnull'. Do this by passing in the strin'devnull' as a second argument to `parse_instructions()`
-
-```python
-hex_result = AssemblyParser.parse_instruction('addi r2 r3 5''devnull')
-print(hex_result)
-```
-The above script will only print out the result to stdout: `20620005`
 
 To parse many instructions:
 
@@ -123,25 +170,13 @@ To parse many instructions:
 import AssemblyParser
 
 instructions = ['addi r12 r12 12','addi r14 r14 14', 'sll r2 r2 5']
-results = [AssemblyParser(i) for i in instructions]
-for r in results:
+for i in instructions:
+  hex_result = AssemblyParser.parse_instructions(i)
   print(r)
 ```
-
-
-
-# Command Line options
-The command line script support numerous options, or flags.
-
-* `-h, --help` : display help information and exit
-* `-q, --quiet` : suppress meta-information. This can be used in any mode.
-* `-f, --file` : parse instructions from a file
-* `-o, --outfile` : provide a file to save results to
-* `-a, --append` : append results to outfile, instead of overwriting
-* `-i, --interactive` : evoke interactive mode. This can be combined with `-f` flag and instructions added from commandline
-
-
-## CS147DV Instruction Format
+---
+---
+# CS147DV Instruction Format
 
 Instructions must be of the form:
 * R-Type :
@@ -180,10 +215,10 @@ Instructions must be of the form:
 
 ---  
 
-Registers must begin with an `r` or and `R` and must be followed by a decimal. T
-`r10` will always map to binary 10d: `001010` and never binary 2d: `00010`
+Registers must begin with an `r` or and `R` and must be followed by a decimal.
+`r10` will always map to register 10d: `001010` and never register 10b: `00010` or register 10h `100001`
 
-If you choose an R-type instruction that requires a `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
+If you choose an R-type instruction that requires a shift amount `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
 
 example:
  ```
@@ -217,7 +252,7 @@ hexadecimal_string result:
 
 it can be applied to the following fields:
 * `<shamt>`
-* `<ìmmediate>`
+* `<immediate>`
 * `<address>`
 
 Options for `[base]`:
@@ -225,19 +260,19 @@ Options for `[base]`:
 * `decimal`
 * `hex`, `hexadecimal`
 
+`dec` can not be used to specify a decimal since the string `'dec'` is a valid hexadecimal number (3564d).
+
 **note:** you can also simply prefix a hexadecimal with `0x` to ensure it is converted to hexadecimal
 
 
-If not specified, the script will attempt to convert `shamt` in the following order:
+If not specified, the script will attempt to convert any number to binary in the following order:
 1. binary
 2. decimal
 3. hexadecimal
 
-This order is necessary since all binary strings are also valid decimal and hexadecimal strings. 
+**note**: This order is necessary since all binary strings are also valid decimal and hexadecimal strings.
 
-Similarly, all decimal strings are also valid hexadecimal strings.
-
-example:
+example. Pay close attention to the `shamt` amount as different `base`s are specified for the number string `'10'`:
 * `[base]` not specified: 
   ```
   enter your intruction: sll r2 r3 10
@@ -258,6 +293,7 @@ example:
   hexadecimal_string result:
   00601081
   ```
+
 * `[base]` set to binary (same as above):
   ```
   enter your intruction: sll r2 r3 10 bin

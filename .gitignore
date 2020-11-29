@@ -1,0 +1,4 @@
+# directories related to packaging for PyPI
+build/
+cs147dvparser.egg-info/
+dist/
