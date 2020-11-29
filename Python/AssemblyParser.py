@@ -310,13 +310,13 @@ def convert_bin_to_hex(bin_s, length):
     return hex(int(bin_s,2))[2:].zfill(length)
 
 
-def parse_instruction(instruction, vprint='os.devnull'):
+def parse_instruction(instruction, vprint=''):
     if not instruction: raise CS147DVError("No instruction provided")
     
     if vprint == 'verbose':
-        vprint = sys.stderr
-    elif vprint == 'os.devnull':
-        vprint = open(os.devnull, 'w')
+        vprint = sys.stderr.write
+    elif not vprint:
+        vprint = lambda *a, **k: None
 
     # remove trailing comments if applicable
     comment_starters = ['//','#','/*']
@@ -338,36 +338,36 @@ def parse_instruction(instruction, vprint='os.devnull'):
     mnemonic, fields = components[0], components[1:]
     opcode = get_opcode(mnemonic)
     if mnemonic in rtype_mnemonics:
-        vprint.write('\n R-Type detected\n')
-        vprint.write(' <mnemonic> <rd> <rs> <rt|shamt> [base]\n\n')
+        vprint('\n R-Type detected\n')
+        vprint(' <mnemonic> <rd> <rs> <rt|shamt> [base]\n\n')
         rd, rs, rt, shamt, base = parse_rtype(mnemonic,fields)
         funct = get_funct(mnemonic)
-        vprint.write(' input: '+instruction+'\n')
-        vprint.write('  _____________________________________\n')
-        vprint.write(' |opcode| rs  | rt  | rd  |shamt| funct|\n')
-        vprint.write(' |______|_____|_____|_____|_____|______|\n\n')
+        vprint(' input: '+instruction+'\n')
+        vprint('  _____________________________________\n')
+        vprint(' |opcode| rs  | rt  | rd  |shamt| funct|\n')
+        vprint(' |______|_____|_____|_____|_____|______|\n\n')
         if base:
             shamt = field_to_binary(shamt,base,5,field_name="shamt")
         else:
             shamt = convert_to_bin(shamt,5,field_name="shamt")
 
     elif mnemonic in itype_mnemonics:
-        vprint.write('\n I-Type detected\n')
-        vprint.write(' <mnemonic> <rt> <rs> <imm> [base]\n\n')
+        vprint('\n I-Type detected\n')
+        vprint(' <mnemonic> <rt> <rs> <imm> [base]\n\n')
         rt, rs, immediate, base = parse_itype(mnemonic,fields)
-        vprint.write(' input: '+instruction+'\n')
-        vprint.write('  ___________________________________\n')
-        vprint.write(' |opcode| rs  | rt  |   immediate    |\n')
-        vprint.write(' |______|_____|_____|________________|\n\n')
+        vprint(' input: '+instruction+'\n')
+        vprint('  ___________________________________\n')
+        vprint(' |opcode| rs  | rt  |   immediate    |\n')
+        vprint(' |______|_____|_____|________________|\n\n')
         immediate = field_to_binary(immediate,base,16) if base else convert_to_bin(immediate,16)
     else: #J-type instruction
-        vprint.write('\n J=Type detected\n')
-        vprint.write(' <mnemonic> <address> [base]\n')
+        vprint('\n J=Type detected\n')
+        vprint(' <mnemonic> <address> [base]\n')
         address, base = parse_jtype(mnemonic, fields)
-        vprint.write(' input: '+instruction+'\n')
-        vprint.write('  _________________________________\n')
-        vprint.write(' |opcode|          address         |\n')
-        vprint.write(' |______|__________________________|\n\n')
+        vprint(' input: '+instruction+'\n')
+        vprint('  _________________________________\n')
+        vprint(' |opcode|          address         |\n')
+        vprint(' |______|__________________________|\n\n')
         address = field_to_binary(address,base,26) if base else convert_to_bin(address,26)
     
     if rd: rd = field_to_binary(rd[1:],10,5, field_name='rd')
@@ -375,40 +375,40 @@ def parse_instruction(instruction, vprint='os.devnull'):
     if rs: rs = field_to_binary(rs[1:],10,5, field_name='rt')
 
     to_print = []
-    vprint.write(' ')
+    vprint(' ')
     for val, name in [[opcode, 'opcode'],[address,'address'],[rs,'rs'],[rt, 'rt'],
                  [immediate, 'imm'],[rd, 'rd'],[shamt,'shamt'],[funct,'funct']]:
         if val:
-            vprint.write(name+'\t')
+            vprint(name+'\t')
             to_print.append(val)
 
-    vprint.write('\n ')
-    vprint.write('\t'.join(to_print)+'\n\n')
+    vprint('\n ')
+    vprint('\t'.join(to_print)+'\n\n')
     bin_instruction = opcode+address+rs+rt+immediate+rd+shamt+funct
     # probably unnecessary. leaving it anyways as a precaution
     assert len(bin_instruction) <= 32, " binary string too long!\n" +bin_instruction
-    vprint.write(' binary_string:\n ')
+    vprint(' binary_string:\n ')
     for i in range(len(bin_instruction)):
         if (i == 0) or (i%4 > 0):
-            vprint.write(bin_instruction[i])
+            vprint(bin_instruction[i])
         else:
-            vprint.write(' '+bin_instruction[i])
-    vprint.write('\n')
+            vprint(' '+bin_instruction[i])
+    vprint('\n')
     hex_instruction = convert_bin_to_hex(bin_instruction,8)
     return hex_instruction
 
 
 def get_instruction(vprint, first_time):
     if first_time:
-        vprint.write('\n WELCOME TO CS147DV INTERACTIVE INSTRUCTION PARSER!\n')
-        vprint.write(' ENTER IN YOUR INSTRUCTIONS ONE AT A TIME\n')
-        vprint.write(' THE RESULT WILL BE PRINTED TO THE SCREEN\n')
-        vprint.write(' INPUT SHOULD BE OF THE TYPE:\n')
-        vprint.write('   R-Type:  <mnemonic> <rd>,<rs>,<rt|shamt>\n')
-        vprint.write('   I-Type:  <mnemonic> <rt>,<rs>, <imm>\n')
-        vprint.write('   J-Type:  <mnemonic> <address>\n')
-        vprint.write(' OUTPUT WILL BE A 32 BIT HEXADECIMAL NUMBER\n')
-        vprint.write(' PRESS ctrl-c TO EXIT AT ANY TIME\n\n')
+        vprint('\n WELCOME TO CS147DV INTERACTIVE INSTRUCTION PARSER!\n')
+        vprint(' ENTER IN YOUR INSTRUCTIONS ONE AT A TIME\n')
+        vprint(' THE RESULT WILL BE PRINTED TO THE SCREEN\n')
+        vprint(' INPUT SHOULD BE OF THE TYPE:\n')
+        vprint('   R-Type:  <mnemonic> <rd>,<rs>,<rt|shamt>\n')
+        vprint('   I-Type:  <mnemonic> <rt>,<rs>, <imm>\n')
+        vprint('   J-Type:  <mnemonic> <address>\n')
+        vprint(' OUTPUT WILL BE A 32 BIT HEXADECIMAL NUMBER\n')
+        vprint(' PRESS ctrl-c TO EXIT AT ANY TIME\n\n')
     instruction = input("\n enter your intruction: ")
     return instruction 
 
@@ -460,9 +460,12 @@ if __name__ == "__main__":
     if not interactive:
         interactive = not instructions
 
-    # set file to print meta information to stdout
-    # or to devnull for 'quiet' mode
-    vprint = open(os.devnull,'w') if args.quiet else sys.stdout
+    # set file to print meta information to stderr
+    # or ignore
+    if args.quiet:
+        vprint = lambda *a, **k: None
+    else:
+        vprint = sys.stderr.write
     
     for i in instructions:
         # hex_result = parse_instruction(i,vprint)
@@ -473,9 +476,10 @@ if __name__ == "__main__":
             print(e,file=sys.stderr)
             print('\n',file=sys.stderr)
         else:
-            vprint.write('\n hexadecimal_string result: \n')
+            vprint('\n hexadecimal_string result: \n')
             outfile.write(' '+hex_result+'\n')
-    
+            if outfile != sys.stdout:
+                vprint('hex result saved to file\n')
     first_time=True
     while interactive:
         try:
@@ -492,9 +496,9 @@ if __name__ == "__main__":
             vprint.close()
             sys.exit(0)
         else:
-            vprint.write('\n hexadecimal_string result:\n')
+            vprint('\n hexadecimal_string result:\n')
             outfile.write(' '+hex_result+'\n\n')
         first_time = False
     
     outfile.close()
-    vprint.close()       
+    
