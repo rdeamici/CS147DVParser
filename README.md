@@ -9,3 +9,16 @@ Pull requests are encouraged.
 The Java implemention of the program and instructions can be found in the CS147DVJavaParser folder.
 
 The Python implementation and instructions can be found in CS147DVPyParser
+
+# CS147DV Instruction Set Architecture
+
+This architecture is created and maintained by Mr. Kaushik Patra for his CS147 - Computer Architecture class. His contact information is:
+
+    Kaushik Patra, Lecturer,
+    Department Of Computer Science,
+    San Jose State University,
+    One Washington Square,
+    San Jose, CA.
+    
+    email: kaushik.patra@sjsu.edu
+

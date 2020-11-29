@@ -1,6 +1,17 @@
 # CS147DVPyParser
-
 This program is intended for students of Kaushik Patra's San Jose State University CS147 - Computer Architecture class. It can be used to quickly convert CS147DV Assembly language instructions to hexadecimal machine code. It may not work as intended if CS147DV has been changed/updated since it was last updated in December of 2019.
+
+## CS147DV Instruction Set Architecture
+This architecture is created and maintained by Mr. Kaushik Patra for his CS147 - Computer Architecture class. His contact information is:
+
+    Kaushik Patra, Lecturer,
+    Department Of Computer Science,
+    San Jose State University,
+    One Washington Square,
+    San Jose, CA.
+    
+    email: kaushik.patra@sjsu.edu
+
 
 ## Requirements
 The program is known to work with Python2.7+ and 3.7+. The package does not rely on any external dependencies.
