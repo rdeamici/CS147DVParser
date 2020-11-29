@@ -204,10 +204,10 @@ Instructions must be of the form:
 
 ---  
 
-Registers must begin with an `r` or and `R` and must be followed by a decimal. T
-`r10` will always map to binary 10d: `001010` and never binary 2d: `00010`
+Registers must begin with an `r` or and `R` and must be followed by a decimal.
+`r10` will always map to register 10d: `001010` and never register 10b: `00010` or register 10h `100001`
 
-If you choose an R-type instruction that requires a `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
+If you choose an R-type instruction that requires a shift amount `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
 
 example:
  ```
@@ -241,7 +241,7 @@ hexadecimal_string result:
 
 it can be applied to the following fields:
 * `<shamt>`
-* `<ìmmediate>`
+* `<immediate>`
 * `<address>`
 
 Options for `[base]`:
@@ -249,19 +249,19 @@ Options for `[base]`:
 * `decimal`
 * `hex`, `hexadecimal`
 
+`dec` can not be used to specify a decimal since the string `'dec'` is a valid hexadecimal number (3564d).
+
 **note:** you can also simply prefix a hexadecimal with `0x` to ensure it is converted to hexadecimal
 
 
-If not specified, the script will attempt to convert `shamt` in the following order:
+If not specified, the script will attempt to convert any number to binary in the following order:
 1. binary
 2. decimal
 3. hexadecimal
 
-This order is necessary since all binary strings are also valid decimal and hexadecimal strings. 
+**note**: This order is necessary since all binary strings are also valid decimal and hexadecimal strings.
 
-Similarly, all decimal strings are also valid hexadecimal strings.
-
-example:
+example. Pay close attention to the `shamt` amount as different `base`s are specified for the number string `'10'`:
 * `[base]` not specified: 
   ```
   enter your intruction: sll r2 r3 10
@@ -282,6 +282,7 @@ example:
   hexadecimal_string result:
   00601081
   ```
+
 * `[base]` set to binary (same as above):
   ```
   enter your intruction: sll r2 r3 10 bin
