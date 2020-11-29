@@ -1,11 +1,11 @@
 # CS147DVPyParser
 
-This program was inspired by Jordan Conragan and written humbly by Rick DeAmicis in the fall semester of 2020 for Kaushik Patra's `CS147: computer architecture` course. The program will quickly convert CS147DV instructions written in human-readable format to hexadecimal. It may not work as intended if CS147DV has been changed/updated since fall 2020. Pull requests are encouraged. Good luck on your project :)
+This program was inspired by Jordan Conragan and written by Rick DeAmicis in the fall semester of 2020 for Kaushik Patra's `CS147: computer architecture` course. The program will quickly convert CS147DV instructions written in human-readable format to hexadecimal. It may not work as intended if CS147DV has been changed/updated since fall 2020. Pull requests are encouraged. Good luck on your project :)
 
 ## Requirements
-The program is known to work with Python 3.7+. It should also work with Python2.7, but is untested.
+The program is known to work with Python 2.7+ and 3.7+.
 
-The script does not have any external dependencies. It does rely on the `sys`, `os`, `re`, `argparse` packages that come built-in with Python.
+The script does not have any external dependencies.
 
 ---
 
@@ -14,7 +14,7 @@ There are two main ways to interact with this script.
             
 1. as a command line utility:
     
-    * interactive mode:
+    *  interactive mode:
 
       `$ python AssemblyParser.py`
       
@@ -22,7 +22,7 @@ There are two main ways to interact with this script.
     
       press `ctrl-c` at any time to exit.
 
-    * passing in instructions as arguments:
+    *  passing in instructions as arguments:
 
       `$ python AssemblyParser.py "add r2 r2 r3"`
 
@@ -34,7 +34,7 @@ There are two main ways to interact with this script.
     
       <img src="/CS147DVParser/2argCommandlineParser.gif" width="450" height="666"/>
     
-    * Pass in instructions from a file. The file must contain one single CS147DV instruction one each line, and nothing else. The script will remove trailing comments that starti with  `//` , `#` , `/*`
+    *  Pass in instructions from a file. The file must contain one single CS147DV instruction one each line, and nothing else. The script will remove trailing comments that starti with  `//` , `#` , `/*`
 
       `$ python AssemblyParser.py -f instructions.txt`
     
@@ -46,7 +46,7 @@ There are two main ways to interact with this script.
 *  `-a, --append` : append the results to outfile, instead of overwriting.
 *  `-i, --interactive` : invoke interactive mode. Especially useful if you want to pass in some instructions from the commandline or a file, and want to continue to add more instructions dynamically
 
-*  `-q, --quit` : suppress output of meta information. Not recommended! Difficult to know if the instruction you input is really what you thought it was.
+*  `-q, --quiet` : suppress output of meta information. Not recommended! Difficult to know if the instruction you input is really what you thought it was.
 
 
 ***    
@@ -62,7 +62,7 @@ There are two main ways to interact with this script.
     
     * instruction (required): a single CS147DV instruction as defined in the Instruction Format section below.
     
-    * vprint (optional): verbose printer. This variable Defines the file-like object to send print statements to. Default is `sys.stderr`. If you want a less verbose output you can set `vprint = devnull` to send print statements to devnull, essentially supressing the statements.
+    * vprint (optional): verbose printer. This variable Defines the file-like object to send print statements to. Default is `os.devnull`. If you want a more verbose output (RECOMMENDED) you can set `vprint = verbose` to send print statements to stderr. This allows you to store the hexadecimal string result to a variable, redirect it to a file, etc, without also saving the metadata.
 
     output:
 
@@ -73,11 +73,12 @@ There are two main ways to interact with this script.
     ```python
     import AssemblyParser
     
-    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
+    # recommended to set vprint='vebose'
+    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint='verbose')
     print(hex_result)
     ```
 
-    As stated above, the script's default setting is verbose. The call to `parse_instructions()` will send the following output to `stderr` by default
+    As stated above, this call to `parse_instructions()` will send the following output to `stderr`:
     
     ```
     I-Type
@@ -93,25 +94,22 @@ There are two main ways to interact with this script.
     binary_string
     0010 0000 0110 0010 0000 0000 0000 0101
     ```
-    
-    setting  to `vprint=devnull` will supprsee the above print statements
-    
+        
     <div class="panel panel-warning">
     **Warning**
     <div class="panel-body">
-
     Suppressing stderr output makes it much more difficult to determine if your instruction is encoded in hexadecimal correctly! Thus it is not recommended.
-
     </div>
     </div>
 
     ```python
-    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint'devnull')
+    hex_result = AssemblyParser.parse_instruction('addi r2 r3 5')
     print(hex_result)
     ```
     The above script will only print out the result to stdout:
-    
-    `0620005`
+    ```
+    0620005
+    ```
 
     to print out multiple instructions:
 
