@@ -1,11 +1,14 @@
 import setuptools
 
-with open("README.md",'r') as fh:
-    long_description = fh.read()
+# read the contents of the README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setuptools.setup(
     name="cs147dvparser",
-    version="1.2.0",
+    version="1.4.0",
     author="Richard DeAmicis, Jordan Conragan",
     author_email="rtdeamicis@gmail.com, jordanvonpordan@gmail.com",
     description="converts CS147DV assembly language instructions into hexadecimal code",
