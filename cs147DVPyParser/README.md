@@ -17,19 +17,23 @@ This architecture is created and maintained by Mr. Kaushik Patra for his CS147 -
 The program is known to work with Python2.7+ and 3.7+. The package does not rely on any external dependencies.
 
 # Quick set-up
-This package contains a module that can be imported to your script or program. It also contains a command line interface (CLI). Thus there are two ways to interact with this package:
-1. [from the command line](#1.-Run-the-program-from-the-command-line) 
-2. [imported as a module](#2.-import-the-program-as-a-module)
+The fastest and easiest way to get this package is to downlaod and install it with pip
+```
+$ pip install cs147dvparser
+```
+The above command will download the package to your machine. The package can be `import`ed to your own python script. It also contains a command line interface (CLI). Thus there are two ways to interact with this package:
+1. [from the command line](#1-run-the-program-from-the-command-line) 
+2. [imported as a module](#2-import-the-program-as-a-module)
 
 ## 1. Run the program from the command line
 
 The program can be run directly from the command line. It contains a number of options, which can be broken down into three main modes: 
-1. [type Assembly instructions interactively](#a\)-interactive-mode)
-2. [pass in Assembly instructions as command-line arguments](#b\)-pass-in-instructions-as-command-line-arguments)
-3. [read Assembly instructions from a file](###c\)-read-instructions-from-a-file)
+1. [type Assembly instructions interactively](#a-interactive-mode)
+2. [pass in Assembly instructions as command-line arguments](#b-pass-in-instructions-as-command-line-arguments)
+3. [read Assembly instructions from a file](#c-read-instructions-from-a-file)
 
 ---
-### a) interactive mode
+###a) interactive mode
   When run with no arguments, the CLI will enter interactive mode:
       
   ```python
