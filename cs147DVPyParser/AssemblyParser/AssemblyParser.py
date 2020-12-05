@@ -1,105 +1,23 @@
 #!/usr/bin/env/python
 from __future__ import print_function
 import sys
-import os
 import argparse
 from builtins import input
+from .exceptions import (
+    CS147DVError, MnemonicError, RtypeError, ItypeError, JtypeError,
+    NumTypeError, BaseError, FieldLengthError, RegisterError, ShamtError,
+    ImmediateError, AddressError
+)
+from .utilities import (
+    rtype_mnemonics, itype_mnemonics, jtype_mnemonics, numTypes, functs, opCodes
+)
+
 '''
  * a python implementation of
  * @author Jordan's java project
  *
  *	A class that can parse CS147DV instructions into their hexadecimal value
 '''
-class CS147DVError(Exception):
-    pass
-
-class MnemonicError(CS147DVError):
-    pass
-
-class RtypeError(CS147DVError):
-    pass
-
-class ItypeError(CS147DVError):
-    pass
-
-class JtypeError(CS147DVError):
-    pass
-
-class NumTypeError(CS147DVError):
-    pass
-
-class BaseError(CS147DVError):
-    pass
-
-class FieldLengthError(CS147DVError):
-    pass
-
-class RegisterError(CS147DVError):
-    pass
-
-class ShamtError(CS147DVError):
-    pass
-
-class ImmediateError(CS147DVError):
-    pass
-
-class AddressError(CS147DVError):
-    pass
-
-rtype_mnemonics = ["add", "sub", "mul", "and", "or", "nor", "slt", "sll", "srl","jr"]
-itype_mnemonics = ["addi", "muli", "andi", "ori", "lui", "slti", "beq", "bne", "lw", "sw"]
-jtype_mnemonics = ["jmp" ,"jal" ,"push" ,"pop"]
-numTypes = {
-    'bin':2,
-    'binary':2,
-    'hex': 16,
-    'hexadecimal':16,
-    'hexidecimal':16,
-    'decimal':10,
-    'decamal':10
-}
-functs = {
-    "add": "100000",
-    "sub": "100010",
-    "mul": '101100',
-    "and": '100100',
-    "or" : '100101',
-    "nor": '100111',
-    "slt": '101010',
-    "sll": "000001",
-    "srl": "000010",
-    "jr" : "001000",
-    
-}
-opCodes = {
-    # r-type
-    "add" : "000000",
-    "sub" : "000000",
-    "mul" : "000000",
-    "and" : "000000",
-    "or"  : "000000",
-    "nor" : "000000",
-    "slt" : "000000",
-    "sll" : "000000",
-    "srl" : "000000",
-    "jr"  : "000000",
-    # i-type
-    "addi": '001000',
-    "muli": '011101',
-    "andi": '001100',
-    "ori" : "001101",
-    "lui" : "001111",
-    "slti": '001010',
-    "beq" : "000100",
-    "bne" : "000101",
-    "lw"  : "100011",
-    "sw"  : "101011",
-    # J-type
-    "jmp" : "000010",
-    "jal" : "000011",
-    "push": "011011",
-    "pop" : "011100"
-}
 
 def validate_field_len(field, field_bin_value, length,field_name):
     # fields with length 5 must have a declared field_name
@@ -107,11 +25,12 @@ def validate_field_len(field, field_bin_value, length,field_name):
     if not field_name:
         field_name = 'immediate' if length == 16 else 'address'
     if len(field_bin_value) > length:
-        FieldLengthError_msg = field+' = '+field_bin_value
-        FieldLengthError_msg += '\ntoo long! field '+field_name+' length is '
+        FieldLengthError_msg = 'ERROR:'+field+' = '+field_bin_value
+        FieldLengthError_msg += '\ntoo long! field "'+field_name+'" length is '
         FieldLengthError_msg += str(len(field_bin_value)) +', max length is '+str(length)
         raise FieldLengthError(FieldLengthError_msg)
-    
+
+
 def field_to_binary(field, base, padding, field_name=''):
     try:
         field_dec_value = int(field,base)
@@ -199,6 +118,7 @@ def form_err_msg(mnemonic,fields, inst,restriction):
     err_msg += '('+str(len(fields))+' field' + (')' if len(fields)==1 else 's)')
     return err_msg
 
+
 def parse_rtype(mnemonic,fields):
     # ensure correct number of instructions passed in for each instruction type
     if not fields:
@@ -282,6 +202,7 @@ def parse_itype(mnemonic, fields):
     base = get_base(numType)
     return rt,rs,immediate,base
 
+
 def parse_jtype(mnemonic, fields):
     if mnemonic in ('push','pop') and fields:
         JtypeError_msg = form_err_msg(mnemonic,fields,inst=mnemonic,restriction='exactly 0 fields')
@@ -302,6 +223,7 @@ def parse_jtype(mnemonic, fields):
     
     base = get_base(numType)
     return address, base
+
 
 def convert_bin_to_hex(bin_s, length):
     # no need to do length checking because 
@@ -412,7 +334,8 @@ def get_instruction(vprint, first_time):
     instruction = input("\n enter your intruction: ")
     return instruction 
 
-if __name__ == "__main__":
+
+def main():
     info = 'input: an instruction or set of instructions\n'
     info += '       passed in via the command line, as a file, or interactively.\n\n'
     info += 'instruction types: R-type: <mnemonic> <rd> <rs> <rt|shamt>\n'
@@ -493,7 +416,6 @@ if __name__ == "__main__":
             # safe to close sys.stdout here since immediately exiting
             sys.stderr.write('\n')
             outfile.close()
-            vprint.close()
             sys.exit(0)
         else:
             vprint('\n hexadecimal_string result:\n')

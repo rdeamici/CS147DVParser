@@ -17,23 +17,23 @@ This architecture is created and maintained by Mr. Kaushik Patra for his CS147 -
 The program is known to work with Python2.7+ and 3.7+. The package does not rely on any external dependencies.
 
 # Quick set-up
-There are two main ways to interact with this program: 
-1. [from the command line](#1\)-Run-the-program-from-the-command-line) 
+This package contains a module that can be imported to your script or program. It also contains a command line interface (CLI). Thus there are two ways to interact with this package:
+1. [from the command line](#1.-Run-the-program-from-the-command-line) 
 2. [imported as a module](#2.-import-the-program-as-a-module)
 
-## 1) Run the program from the command line
+## 1. Run the program from the command line
 
-The program can be run directly from the command line. It has a fairly robust set of features, and comes in 3 modes: 
-1. [interactive mode](###a\)-interactive-mode)
-2. [command-line driven mode](#b\)-command-line-driven-mode)
-3. [file driven mode](###c\)-file-driven-mode)
+The program can be run directly from the command line. It contains a number of options, which can be broken down into three main modes: 
+1. [type Assembly instructions interactively](#a\)-interactive-mode)
+2. [pass in Assembly instructions as command-line arguments](#b\)-pass-in-instructions-as-command-line-arguments)
+3. [read Assembly instructions from a file](###c\)-read-instructions-from-a-file)
 
 ---
 ### a) interactive mode
-  When run with no arguments, the program will enter interactive mode:
+  When run with no arguments, the CLI will enter interactive mode:
       
   ```python
-  $ python AssemblyParser.py
+  $ cs147DVParser
 
   WELCOME TO CS147DV INTERACTIVE INSTRUCTION PARSER!
   ENTER IN YOUR INSTRUCTIONS ONE AT A TIME
@@ -50,33 +50,33 @@ The program can be run directly from the command line. It has a fairly robust se
 
   Interactive mode can also be evoked explicitly with the `-i` flag:
       
-      $ python AssemblyParser.py -i
+      $ cs147DVParser -i
 ---
-### b) command line driven mode
+### b) pass in instructions as command line arguments
 
 In this mode, the user can pass in any valid CS147DV assembly code instruction to the program as a command-line argument:
 
  One instruction:
-   ```
-   $ python AssemblyParser.py "addi r2 r3 5"
+   ```python
+   $ cs147DVParser "addi r2 r3 5"
    ``` 
   
 More than one instruction:  
   
-    $ python AssemblyParser.py "<instruction1>" "<instruction2>"
+    $ cs147DVParser "<instruction1>" "<instruction2>"
 
 Assembly instructions will be parsed one at a time in the order they are passed in on the command line from left to right.
 
 ---
-### c) file driven mode.
+### c) read instructions from a file
 
 In this mode, a text file contatining a list of instructions are passed in to the program. The file must consist of a single instruction on each line of the file. The instructions are parsed one at a time from top to bottom.
     
-    $ python AssemblyParser.py -f instructions.txt  
+    $ cs147DVParser -f instructions.txt  
 ---
 **note:** Modes can be mixed and matched. You can even run all three modes at once:
 
-    $ python AssemblyParser.py "addi r1 r2 3" -f instructions.txt -i 
+    $ cs147DVParser "addi r1 r2 3" -f instructions.txt -i 
 
 When mixing and matching modes, the instructions will be processed in the following order
 1. from the command line
@@ -111,7 +111,7 @@ output from parsing an instruction will look similar to this:
 additional options include:
 
 - `-o, --outfile (outfile)`: specify a file to write the hexadecimal output from each instruction parse. The current contents of `<outfile>` will be completely overwritten.
-- `-a, --append`: append the results of each instruction to `<outfile>` instead of overwriting. This option does nothing if not combined with the `-o` option.
+- `-a, --append`: append the results of each instruction to `<outfile>` instead of overwriting the file. This option does nothing if not combined with the `-o` option.
 - `-q, --quiet`: suppress all other [output](#output) except for the hexadecimal parse of each instruction.
 
 other arguments include:
@@ -120,12 +120,12 @@ other arguments include:
 * `-f, --file` : parse instructions from a file
 * `-i, --interactive` : evoke interactive mode.
 
-click here for information about proper [CS147DV Assembly Instruction formatting](#CS147DV-Instruction-Format)
+click here for information on proper [CS147DV Assembly Instruction formatting](#CS147DV-Instruction-Format)
 
 ---
 ---
 ## 2. import the program as a module    
-AssemblyParser.py can be `import`ed as a module into another program.
+AssemblyParser.py can be `import`ed as a module into another program. The main point of entry is the `parse_instruction()` function
 
 ```python
 import AssemblyParser
@@ -137,7 +137,7 @@ The above script will output:
 20620005
 ```
 
-To see meta-data about each instruction, set the verbose printer `vprint` to `'verbose'`:
+To see meta-data about each instruction, set the verbose printer, `vprint` to `'verbose'`:
 ```python
 import AssemblyParser
 hex_result = AssemblyParser.parse_instruction('addi r2 r3 5', vprint='verbose')
@@ -172,7 +172,7 @@ import AssemblyParser
 instructions = ['addi r12 r12 12','addi r14 r14 14', 'sll r2 r2 5']
 for i in instructions:
   hex_result = AssemblyParser.parse_instructions(i)
-  print(r)
+  print(hex_result)
 ```
 ---
 ---
@@ -215,8 +215,8 @@ Instructions must be of the form:
 
 ---  
 
-Registers must begin with an `r` or and `R` and must be followed by a decimal.
-`r10` will always map to register 10d: `001010` and never register 10b: `00010` or register 10h `100001`
+Registers must begin with an `r` or an `R` and must be followed by a decimal number.
+`r10` will always map to register 10d: `001010b` and never register 10b: `000010b` or register 10h `010000b`
 
 If you choose an R-type instruction that requires a shift amount `shamt` instead of a register `rt`, the script will fail if the value passed in begins with an `[rR]`
 
@@ -248,7 +248,7 @@ hexadecimal_string result:
 
 ---
 
-`[base]` is used to directly specify what your data type is. 
+`[base]` is used to directly specify what your data type is.
 
 it can be applied to the following fields:
 * `<shamt>`
@@ -355,4 +355,5 @@ example. Pay close attention to the `shamt` amount as different `base`s are spec
   
 Notice how the value of `shamt` and thus the `binary_string` and `hexadecmal_string result` change as the `[base]` is specified.
 
+More information and gifs of the tool in action can be found at the
 [CS147DVPyParser website](https://rdeamici.github.io/CS147DVParser)
