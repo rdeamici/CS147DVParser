@@ -33,7 +33,7 @@ The program can be run directly from the command line. It contains a number of o
 3. [read Assembly instructions from a file](#c-read-instructions-from-a-file)
 
 ---
-###a) interactive mode
+### a) interactive mode
   When run with no arguments, the CLI will enter interactive mode:
       
   ```python
